@@ -1,0 +1,94 @@
+\documentclass[12pt]{article}
+
+\include{../style}
+
+\begin{document}
+
+\input{title}
+
+\begin{problem}{2.1}
+Prove the ``homogeneous Nullstellensatz,'' which says if $\mathfrak a \subseteq S$ is a homogeneous ideal, and if $f\in S$ is a homogeneous polynomial with $\deg f>0$, such that $f(P)=0$ for all $P\in Z(\mathfrak a)$ in $\mathbf P^n$, then $f^q\in \mathfrak a$ for some $q>0$.
+
+\emph{[Hint: Interpret the problem in terms of the affine $(n+1)$-space whose affine coordinate ring is $S$, and use the usual Nullstellensatz, (1.3A).]}
+\end{problem}
+
+\begin{problem}{2.2}
+For a homogeneous ideal $\mathfrak a \subseteq S$, show that the following conditions are equivalent:
+\begin{enumerate}
+    \item[(i)] $Z(\mathfrak a)=\varnothing$ (the empty set);
+    \item[(ii)] $\sqrt{\mathfrak a}$ is either $S$ or the ideal
+    \[
+    S_+ = \bigoplus_{d>0} S_d;
+    \]
+    \item[(iii)] $\mathfrak a \supseteq S_d$ for some $d>0$.
+\end{enumerate}
+\end{problem}
+
+\begin{problem}{2.3}
+\begin{enumerate}
+    \item[(a)] If $T_1\subseteq T_2$ are subsets of $S^h$, then
+    \[
+    Z(T_1)\supseteq Z(T_2).
+    \]
+
+    \item[(b)] If $Y_1\subseteq Y_2$ are subsets of $\mathbf P^n$, then
+    \[
+    I(Y_1)\supseteq I(Y_2).
+    \]
+
+    \item[(c)] For any two subsets $Y_1,Y_2$ of $\mathbf P^n$,
+    \[
+    I(Y_1\cup Y_2)=I(Y_1)\cap I(Y_2).
+    \]
+
+    \item[(d)] If $\mathfrak a\subseteq S$ is a homogeneous ideal with $Z(\mathfrak a)\neq\varnothing$, then
+    \[
+    I(Z(\mathfrak a))=\sqrt{\mathfrak a}.
+    \]
+
+    \item[(e)] For any subset $Y\subseteq \mathbf P^n$,
+    \[
+    Z(I(Y))=\overline{Y}.
+    \]
+\end{enumerate}
+\end{problem}
+
+\begin{problem}{2.4}
+\begin{enumerate}
+    \item[(a)] There is a one-to-one inclusion-reversing correspondence between algebraic sets in $\mathbf P^n$, and homogeneous radical ideals of $S$ not equal to $S_+$, given by
+    \[
+    Y\longmapsto I(Y)
+    \qquad\text{and}\qquad
+    \mathfrak a\longmapsto Z(\mathfrak a).
+    \]
+
+    \emph{Note: Since $S_+$ does not occur in this correspondence, it is sometimes called the irrelevant maximal ideal of $S$.}
+
+    \item[(b)] An algebraic set $Y\subseteq \mathbf P^n$ is irreducible if and only if $I(Y)$ is a prime ideal.
+
+    \item[(c)] Show that $\mathbf P^n$ itself is irreducible.
+\end{enumerate}
+\end{problem}
+
+\begin{problem}{2.5}
+\begin{enumerate}
+    \item[(a)] $\mathbf P^n$ is a noetherian topological space.
+
+    \item[(b)] Every algebraic set in $\mathbf P^n$ can be written uniquely as a finite union of irreducible algebraic sets, no one containing another. These are called its \emph{irreducible components}.
+\end{enumerate}
+\end{problem}
+
+\begin{problem}{2.6}
+If $Y$ is a projective variety with homogeneous coordinate ring $S(Y)$, show that
+\[
+\dim S(Y)=\dim Y+1.
+\]
+
+\emph{[Hint: Let $\varphi_i:U_i\to \mathbb A^n$ be the homeomorphism of (2.2), let $Y_i$ be the affine variety $\varphi_i(Y\cap U_i)$, and let $A(Y_i)$ be its affine coordinate ring. Show that $A(Y_i)$ can be identified with the subring of elements of degree $0$ of the localized ring $S(Y)_{x_i}$. Then show that}
+\[
+S(Y)_{x_i}\cong A(Y_i)[x_i,x_i^{-1}].
+\]
+\emph{Now use (1.7), (1.8A), and (Ex.\ 1.10), and look at transcendence degrees. Conclude also that $\dim Y=\dim Y_i$ whenever $Y_i$ is nonempty.]}
+\end{problem}
+
+\end{document}
