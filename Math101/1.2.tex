@@ -1,0 +1,584 @@
+\documentclass[Notebook.tex]{subfiles}
+
+\begin{document}
+
+
+\ifSubfilesClassLoaded{
+    \input{title}
+}{}
+
+\begin{center}
+	{Worksheet 1.2: Modules, Submodules, and Quotients}
+\end{center}
+
+Let $R$ be a ring. A \emph{left $R$-module} is an abelian group $(M,+,0_M)$ together with a scalar multiplication $R\times M\to M$, written $(r,m)\mapsto rm$, satisfying the following axioms:
+\begin{enumerate}[label=(\roman*)]
+	\item (Identity) $1_Rm=m$ for all $m\in M$,
+	\item (Associativity) $(rs)m=r(sm)$ for all $r,s\in R$ and all $m\in M$,
+	\item (Left Distributivity) $r(m+n)=rm+rn$ for all $r\in R$ and all $m,n\in M$, and
+	\item (Right Distributivity) $(r+s)m=rm+sm$ for all $r,s\in R$ and all $m\in M$.
+\end{enumerate}
+We write $rm$ for the scalar multiplication of $r\in R$ and $m\in M$, and we write $0$ for $0_R$ or $0_M$ when the intended identity is clear from context. Unlike a ring, a module need not have a multiplication of its own elements. The associativity axiom describes how multiplication in $R$ interacts with its action on $M$: acting by $s$ and then by $r$ is the same as acting by $rs$.
+
+A \emph{right $R$-module} has its scalars acting on the right, with associativity given by $m(rs)=(mr)s$. Unless we say otherwise, \emph{module} will always mean left module. In a commutative ring the two notions agree by setting $mr=rm$, but in an arbitrary ring it is important to keep track of the side on which scalars act. As in the previous worksheet all rings have a multiplicative identity, but need not be commutative, and the letter $\K$ will denote a field.
+
+The goal of this worksheet is to introduce modules and study their submodules, homomorphisms, and quotients. Modules generalize vector spaces by allowing scalars to come from a ring. You already know several examples, including vector spaces and abelian groups. The definitions let us study these examples together, while retaining differences such as whether a module has a basis.
+
+\hrulefill
+
+\begin{problem}{1}\label{m:basic}
+	\textbf{Basic Module Identities.} Throughout this exercise let $M$ be a left $R$-module.
+	\begin{enumerate}[label=(\alph*),ref=\theenumi\alph*]
+		\item Starting from the axioms, prove the following identities:
+		\begin{enumerate}[label=(\roman*),ref=\theenumi\roman*]
+			\item $r0_M=0_M$ for all $r \in R$,
+			\item $0_Rm=0_M$ for all and $m\in M$, and
+			\item $(-r)m = -(rm) = r(-m)$ for all $r \in R$ and $m \in M$.
+		\end{enumerate}
+		\item State in words what each of the three identities above mean.
+	\end{enumerate}
+\end{problem}
+
+\begin{solution}
+	\bbni
+	\begin{enumerate}[label=(\alph*),ref=\theenumi\alph*]
+		\item
+		\begin{enumerate}[label=(\roman*),ref=\theenumi\roman*]
+			\item
+			\item
+			\item
+		\end{enumerate}
+		\item
+	\end{enumerate}
+\end{solution}
+
+\newpage
+
+\begin{problem}{2}\label{m:examples}
+	\textbf{First Examples of Modules.} Throughout this exercise let $R$ be a ring.
+	\begin{enumerate}[label=(\alph*),ref=\theenumi\alph*]
+		\item Compare the module axioms with the vector space axioms, and explain why a $\K$-module is exactly a $\K$-vector space. Do the module axioms require nonzero scalars to be invertible? Do they require multiplication in $R$ to be commutative?
+		\item Check that $R$ itself is a left $R$-module under its own multiplication. Which module axioms are inherited from which ring axioms?
+		\item If $I\subset R$ is a left ideal, explain why the multiplication on $R$ makes $I$ an $R$-module.
+		\item Given an example of a ring $R$ and an additive subgroup $A \subset R$, which is not an $R$-module.
+		\item Let $A$ be an abelian group. Define an action $\Z\times A \to A$ by $(n,a) \mapsto na$ where $na$ means $a$ added to itself $n$ times. Show that this makes $A$ into a $\Z$-module.
+		\item Conversely, show that the axioms force every $\Z$-action on $A$ to be this one. Thus an abelian group has a unique $\Z$-module structure. Compare this with the unique ring homomorphism $\Z\to R$ from Worksheet 1.1.
+	\end{enumerate}
+\end{problem}
+
+\begin{solution}
+	\bbni
+	\begin{enumerate}[label=(\alph*),ref=\theenumi\alph*]
+		\item
+		\item
+		\item
+		\item
+		\item
+		\item
+	\end{enumerate}
+\end{solution}
+
+\newpage
+
+Let $M$ be an $R$-module. A \emph{submodule} $N\subset M$ is an additive subgroup which is closed under the $R$-action, so that the action of $R$ on $M$ restrict to an action of $R$ on $N$. (There might be some sort of diagram you might draw here.) Equivalently, $N$ is nonempty and $rn+sn'\in N$ whenever $r,s\in R$ and $n,n'\in N$. This is the same closure condition used to recognize subspaces, with the scalars now taken from $R$.
+
+Let $M$ and $N$ be $R$-modules, a \emph{module homomorphism}, or \emph{$R$-linear map}, is a function $\phi:M\to N$ satisfying the following conditions for all $m,m'\in M$ and all $r\in R$:
+\begin{enumerate}[label=(\roman*)]
+	\item $\phi(m+m')=\phi(m)+\phi(m')$.
+	\item $\phi(rm)=r\phi(m)$.
+\end{enumerate}
+Notice the first condition says that $\phi$ is a homomorphism of the underlying abelian groups. In particular it preserves $0$ and additive inverses. The second says that $\phi$ respects the scalar action. We write $\Hom_R(M,N)$ for the set of such maps. We call a homomorphism from a module to itself a \emph{endomorphism} and so $\End_{R}(M) \coloneqq \Hom_{R}(M,M)$.
+
+A module homomorphism is an \emph{isomorphism} if it has an inverse which is again a module homomorphism. As with groups and rings, this turns out to be equivalent to the set theoretic condition of being a bijection. We write $M\cong N$ when an isomorphism exists. An \emph{automorphism} of $M$ is an isomorphism $\phi:M \to M$. We denote the set of $R$-linear automorphisms by $\Aut_{R}(M) \subset \End_{R}(M)$.
+
+As with ring homomorphisms, a module homomorphism $\phi:M\to N$ comes with a \emph{kernel} and an \emph{image}:
+\[
+\ker(\phi) \coloneqq \left\{ m \in M \;\; \big| \;\; \phi(m) = 0_N \right\}\subset M \qquad \text{and} \qquad \img(\phi) \coloneqq \left\{\phi(m) \;\; \big| \;\; m \in M\right\} \subset N.
+\]
+A homomorphism is surjective exactly when its image is the whole target, while its kernel measures its failure to be injective. Whether an additive subgroup is a submodule depends on the ring action. For example, a subspace of $\K^2$ need not be preserved by every matrix in $\Mat_2(\K)$. We will see this distinction in the following exercise.
+
+\hrulefill
+
+\begin{problem}{3}\label{m:maps}
+	\textbf{Submodules and Module Homomorphisms.} Throughout this exercise let $M$ and $N$ be $R$-modules.
+	\begin{enumerate}[label=(\alph*),ref=\theenumi\alph*]
+		\item Prove that $N \subset M$ is a non-empty $R$-submodule if and only if $N$ is non-empty and $rn+sn'\in N$ whenever $r,s\in R$ and $n,n'\in N$.
+		\item Show that $\K$-module maps are exactly the linear maps of vector spaces.
+		\item Show that $\Z$-module maps are exactly the homomorphisms of abelian groups.
+		\item Let $\phi:M\to N$ be an $R$-linear map. Prove that $\ker(\phi)$ is a submodule of $M$ and that $\img(\phi)$ is a submodule of $N$
+		\item Prove that $\phi$ is injective if and only if $\ker(\phi)=\{0\}$, and surjective if and only if $\img(\phi)=P$.
+		\item Show that compositions of $R$-linear maps and identity maps are $R$-linear. If $\phi$ is a bijective $R$-linear map, prove that $\phi^{-1}$ is $R$-linear, so that $\phi$ is an isomorphism. Hint: write two elements of the target as $\phi(m)$ and $\phi(m')$.
+		\item Let $R=\Mat_2(\K)$ act on the column space $\K^2$ by matrix multiplication. Verify the module axioms. Show that any nonzero column can be carried to any other column by a suitable matrix, and deduce that this module has exactly two submodules. In particular, is the line $\K e_1$ an $R$-submodule? Compare this with the left ideal of $\Mat_2(\K)$ consisting of matrices whose second column is zero, which you studied in Worksheet 1.1.
+	\end{enumerate}
+\end{problem}
+
+\begin{solution}
+	\bbni
+	\begin{enumerate}[label=(\alph*),ref=\theenumi\alph*]
+		\item
+		\item
+		\item
+		\item
+		\item
+		\item
+		\item
+	\end{enumerate}
+\end{solution}
+
+\newpage
+
+Modules over the polynomial ring $\K[x]$ give a useful dictionary between module theory and linear algebra. Let $V$ be a $\K$-vector space and let $T:V\to V$ be a linear operator. Substituting $T$ for $x$ defines an action of $\K[x]$ on $V$ by the rule
+\[
+\left(a_0+a_1x+\cdots+a_dx^d\right)v
+\coloneqq a_0v+a_1T(v)+\cdots+a_dT^d(v),\qquad T^0\coloneqq\Id_V.
+\]
+We write $V_T$ for the resulting module. Constant polynomials act by the original scalar multiplication on $V$, and the variable $x$ acts by $T$. Conversely, a $\K[x]$-module becomes a vector space once we restrict the scalars to the constant polynomials, and multiplication by $x$ is then a linear operator on that vector space. A $\K[x]$-module is therefore the same thing as a vector space together with a choice of linear operator. The variable $x$ is still a formal symbol; it is the module structure which specifies how it acts.
+
+This dictionary also translates submodules and homomorphisms. Let $W$ be a $\K$-vector space with a linear operator $S:W\to W$. A $\K$-linear map $\phi:V\to W$ is a module homomorphism $V_T\to W_S$ if and only if $\phi\circ T=S\circ\phi$, in which case we call $\phi$ an \emph{intertwining map}. Similarly, a subspace $U\subset V$ is a submodule of $V_T$ if and only if $T(U)\subset U$, in which case we call $U$ a \emph{$T$-invariant subspace}. These translations let us study a linear operator by studying its module, a point of view we will return to when we discuss canonical forms. We check the dictionary in the following exercise.
+
+\hrulefill
+
+\begin{problem}{4}\label{m:dictionary}
+	\textbf{Modules over $\K[x]$ and Linear Operators.} Throughout this exercise let $V$ and $W$ be $\K$-vector spaces equipped with linear operators $T$ and $S$ respectively.
+	\begin{enumerate}[label=(\alph*),ref=\theenumi\alph*]
+		\item Verify that the displayed formula makes $V$ into a $\K[x]$-module. For the associativity axiom, first check that $T^iT^j=T^{i+j}$, and then expand a product of two polynomials.
+		\item Conversely, let $M$ be a $\K[x]$-module. Use the constant polynomials to regard $M$ as a $\K$-vector space, and set $T(m)\coloneqq xm$. Prove that $T$ is $\K$-linear, and then show that every polynomial acts by the displayed formula. Conclude that the two constructions undo one another.
+		\item Prove that a map $\phi:V\to W$ is $\K[x]$-linear as a map $V_T\to W_S$ if and only if it is $\K$-linear and
+		\[
+		\phi\circ T=S\circ \phi.
+		\]
+		For the reverse implication, first prove that $\phi\circ T^j=S^j\circ\phi$ by induction on $j$.
+		\item Prove that the $\K[x]$-submodules of $V_T$ are exactly the subspaces $U\subset V$ with $T(U)\subset U$. Why does stability under $T$ already force stability under every polynomial in $T$?
+		\item Show that an intertwining map carries $T$-invariant subspaces to $S$-invariant subspaces. Check directly that its kernel is $T$-invariant and that its image is $S$-invariant.
+		\item Suppose that $V$ and $W$ are finite dimensional. Choose bases and translate the equation $\phi\circ T=S\circ\phi$ into an equation of matrices. Deduce that $V_T\cong W_S$ exactly when the matrices of the two operators are related by an invertible change of coordinates.
+	\end{enumerate}
+\end{problem}
+
+\begin{solution}
+	\bbni
+	\begin{enumerate}[label=(\alph*),ref=\theenumi\alph*]
+		\item
+		\item
+		\item
+		\item
+		\item
+		\item
+	\end{enumerate}
+\end{solution}
+
+\newpage
+
+For a concrete example, let $V=\K^2$ with basis $e_1,e_2$, and define a linear operator by $T(e_1)=0$ and $T(e_2)=e_1$. The operator $T$ is \emph{nilpotent}, meaning that some positive power of $T$ is zero. Here $T^2=0$, so a polynomial $f(x)=a_0+a_1x+x^2g(x)$ acts by
+\[
+f(T)(ue_1+ve_2)=(a_0u+a_1v)e_1+a_0ve_2.
+\]
+In particular, two polynomials which differ by a multiple of $x^2$ act in the same way. Recall the ring of dual numbers $\K[\varepsilon]=\K[x]/\langle x^2\rangle$ from Worksheet 1.1, where $\varepsilon=x+\langle x^2\rangle$. Every element has a unique expression $a+b\varepsilon$ with $a,b\in\K$, and $\varepsilon^2=0$. Multiplication by $\varepsilon$ sends $1$ to $\varepsilon$ and $\varepsilon$ to zero, just as $T$ sends $e_2$ to $e_1$ and $e_1$ to zero. We use this comparison in the following exercise to identify the two modules, and then to compute their submodules and endomorphisms.
+
+\hrulefill
+
+\begin{problem}{5}\label{m:nilpotent}
+	\textbf{A Nilpotent Operator and the Dual Numbers.} Throughout this exercise let $V$ and $T$ be as above, let $\K[\varepsilon]=\K[x]/\langle x^2\rangle$, and let $\varepsilon=x+\langle x^2\rangle$.
+	\begin{enumerate}[label=(\alph*),ref=\theenumi\alph*]
+		\item Use the displayed formula to compute $(2+3x+x^5)e_2$ and $x(e_1+e_2)$ in $V_T$. Compute these vectors when $\K=\FF_2$.
+		\item Regard $\K[\varepsilon]$ as a $\K[x]$-module by $f(x)\cdot(a+b\varepsilon)\coloneqq f(\varepsilon)(a+b\varepsilon)$. Show directly that
+		\[
+		\phi:\K[\varepsilon]\longrightarrow V_T,\qquad
+		a+b\varepsilon\longmapsto ae_2+be_1
+		\]
+		is well defined, $\K[x]$-linear, and bijective. Explain why interchanging $e_1$ and $e_2$ in this formula would not give a module homomorphism.
+		\item Show that $e_2$ generates $V_T$ as a $\K[x]$-module, in the sense that every vector is of the form $f(x)e_2$. Does $e_2$ alone span $V$ as a $\K$-vector space? Explain why the two questions have different answers.
+		\item Compute $\ker(T)$ and $\img(T)$. Use Problem~\ref{m:dictionary} to show that $V_T$ has exactly three submodules: $\{0\}$, $\K e_1$, and $V_T$. Hint: an invariant subspace containing $ue_1+ve_2$ with $v\ne0$ also contains $e_1$.
+		\item Write an arbitrary $\K$-linear map $\phi:V\to V$ as a $2\times2$ matrix and solve the equation $\phi\circ T=T\circ\phi$. Describe every element of $\End_{\K[x]}(V_T)$, and determine which of them lie in $\Aut_{\K[x]}(V_T)$. Compare the automorphisms you find with the units of $\K[\varepsilon]$ from Worksheet 1.1.
+	\end{enumerate}
+\end{problem}
+
+\begin{solution}
+	\bbni
+	\begin{enumerate}[label=(\alph*),ref=\theenumi\alph*]
+		\item
+		\item
+		\item
+		\item
+		\item
+	\end{enumerate}
+\end{solution}
+
+\newpage
+
+Let $N\subset M$ be a submodule. Since $N$ is an additive subgroup of the abelian group $M$, we may form the quotient group $M/N$, whose elements are the cosets $m+N$, with $m+N=m'+N$ if and only if $m-m'\in N$. To obtain a \emph{quotient module}, we define a scalar multiplication by
+\[
+r(m+N)\coloneqq rm+N.
+\]
+The fact that $N$ is closed under the action of $R$ guarantees that this formula does not depend on the chosen representative. Together with the addition $(m+N)+(m'+N)=(m+m')+N$, it makes $M/N$ an $R$-module. The \emph{quotient map}
+\[
+\begin{tikzcd}[row sep=.3em,column sep=4em]
+	M \arrow[r,"\pi"] & M/N & & m \arrow[r,mapsto] & m+N
+\end{tikzcd}
+\]
+is a surjective module homomorphism with kernel $N$. Consequently, every submodule occurs as the kernel of a module homomorphism, just as every two-sided ideal occurs as the kernel of a ring homomorphism.
+
+One way to think of $M/N$ is as the module obtained by imposing the equations $n=0$ for all $n\in N$. More precisely, a module homomorphism $\phi:M\to P$ which vanishes on $N$ determines a unique module homomorphism $\overline{\phi}:M/N\to P$ such that $\overline{\phi}\circ \pi=\phi$:
+\[
+\begin{tikzcd}[column sep=4em,row sep=4em]
+	M \arrow[r,"\phi"] \arrow[d,two heads,"\pi"'] & P \\
+	M/N \arrow[ur,dashed,"\overline{\phi}"'] &
+\end{tikzcd}
+\]
+This is the \emph{universal property of quotient modules}. As with quotient rings, it describes homomorphisms out of $M/N$ in terms of homomorphisms out of $M$ which send $N$ to zero. We check the construction and this property in the following exercise.
+
+\hrulefill
+
+\begin{problem}{6}\label{m:quotient}
+	\textbf{Construction and Properties of Quotient Modules.} Throughout this exercise let $N\subset M$ be a submodule of an $R$-module.
+	\begin{enumerate}[label=(\alph*),ref=\theenumi\alph*]
+		\item Suppose $m+N=m'+N$, and prove that $rm+N=rm'+N$ for every $r\in R$, using the fact that $N$ is closed under scalar multiplication. Write down the formulas for addition and scalar multiplication in $M/N$, and verify the module axioms.
+		\item Prove that $\pi:M\to M/N$, $m\mapsto m+N$, is a surjective module homomorphism with $\ker(\pi)=N$. Conclude that every submodule occurs as a kernel.
+		\item Suppose $\phi:M\to P$ is $R$-linear with $N\subset\ker(\phi)$. Prove that $\overline{\phi}(m+N)=\phi(m)$ is a well-defined $R$-linear map, and that it is the unique map $M/N\to P$ satisfying $\overline{\phi}\circ \pi=\phi$. Explain in words why a homomorphism out of $M/N$ is the same thing as a homomorphism out of $M$ which sends $N$ to zero.
+	\end{enumerate}
+\end{problem}
+
+\begin{solution}
+	\bbni
+	\begin{enumerate}[label=(\alph*),ref=\theenumi\alph*]
+		\item
+		\item
+		\item
+	\end{enumerate}
+\end{solution}
+
+\newpage
+
+The construction of quotient modules also explains the relationship between the kernel and the image of a homomorphism $\phi:M\to P$. Two elements of $M$ have the same image exactly when their difference lies in $\ker(\phi)$. Passing to $M/\ker(\phi)$ therefore identifies exactly the elements that $\phi$ identifies. The induced map is injective and has image $\img(\phi)$.
+
+\begin{theorem}[First Isomorphism Theorem for Modules]
+	Let $\phi:M\to P$ be a homomorphism of $R$-modules. Then the map
+	\[
+	\overline{\phi}:M/\ker(\phi)\longrightarrow\img(\phi),
+	\qquad m+\ker(\phi)\longmapsto \phi(m),
+	\]
+	is an isomorphism of $R$-modules. In particular, there is a commutative diagram
+	\[
+	\begin{tikzcd}[row sep=4em,column sep=4em]
+		M \arrow[r,"\phi"] \arrow[d,two heads,"\pi"'] & P \\
+		M/\ker(\phi) \arrow[r,"\overline{\phi}","\sim"'] & \img(\phi) \arrow[u,hook]
+	\end{tikzcd}
+	\]
+\end{theorem}
+
+Every module homomorphism can therefore be expressed as a quotient map followed by an isomorphism and an inclusion. If $\phi$ is surjective, the theorem gives $M/\ker(\phi)\cong P$. As with rings, we can recognize a quotient module by constructing a surjective homomorphism onto a module we already understand and computing its kernel. The familiar versions for abelian groups and vector spaces are special cases. We prove the theorem and apply it in the following exercise.
+
+\hrulefill
+
+\begin{problem}{7}\label{m:fit}
+	\textbf{The First Isomorphism Theorem and Examples.} Throughout parts (a) and (b) let $\phi:M\to P$ be a homomorphism of $R$-modules.
+	\begin{enumerate}[label=(\alph*),ref=\theenumi\alph*]
+		\item Use Problem~\ref{m:quotient} with $N=\ker(\phi)$ to construct $\overline{\phi}:M/\ker(\phi)\to\img(\phi)$. Show that the resulting map is surjective, and that if $\overline{\phi}(m+\ker(\phi))=0$ then $m+\ker(\phi)$ is the zero coset. Deduce that $\overline{\phi}$ is injective.
+		\item Use Problem~\ref{m:maps} to conclude that the bijection of part (a) is an isomorphism of $R$-modules, which proves the theorem.
+		\item Apply the theorem to the $\Z$-linear map $\phi:\Z\to\Z/12\Z$, $a\mapsto\overline{8a}$. Compute its kernel and its image, and write the induced isomorphism down explicitly. What does it do to the class of $1$?
+		\item Return to the module $V_T$ of Problem~\ref{m:nilpotent}. Regard $T$ itself as a $\K[x]$-linear map and identify $V_T/\ker(T)\cong\img(T)$, describing the action of $x$ on each side. For an invariant subspace $U$ of an arbitrary $V_T$, explain why the operator induced on the quotient is $v+U\mapsto T(v)+U$.
+	\end{enumerate}
+\end{problem}
+
+\begin{solution}
+	\bbni
+	\begin{enumerate}[label=(\alph*),ref=\theenumi\alph*]
+		\item
+		\item
+		\item
+		\item
+	\end{enumerate}
+\end{solution}
+
+\newpage
+
+The first isomorphism theorem also lets us compare quotients which are constructed in different ways. Let $A,B\subset M$ be submodules. Their \emph{sum} is
+\[
+A+B\coloneqq\left\{a+b \;\; \big| \;\; a\in A,\ b\in B\right\},
+\]
+which is the smallest submodule of $M$ containing both $A$ and $B$. Passing to $(A+B)/B$ has the effect of setting the elements of $B$ equal to zero, so every class can be represented by an element of $A$ alone. The part of $A$ which becomes zero in the process is exactly $A\cap B$. The second isomorphism theorem is the precise form of this observation, and its proof is a single application of the first.
+
+\begin{theorem}[Second Isomorphism Theorem for Modules]
+	If $A$ and $B$ are submodules of an $R$-module $M$, then
+	\[
+	A/(A\cap B)\ \xrightarrow{\ \sim\ }\ (A+B)/B,
+	\qquad a+(A\cap B)\longmapsto a+B
+	\]
+	is an isomorphism of $R$-modules.
+\end{theorem}
+
+\hrulefill
+
+\begin{problem}{8}\label{m:second}
+	\textbf{The Second Isomorphism Theorem.} Throughout this exercise let $A$ and $B$ be submodules of an $R$-module $M$.
+	\begin{enumerate}[label=(\alph*),ref=\theenumi\alph*]
+		\item Prove that $A+B$ and $A\cap B$ are submodules of $M$, and that $A+B$ is contained in every submodule of $M$ containing both $A$ and $B$.
+		\item Define $\phi:A\to(A+B)/B$ by $a\mapsto a+B$, and verify that it is a module homomorphism. Why does its image contain the class of every element $a+b$ of $A+B$?
+		\item Compute $\ker(\phi)$, and use Problem~\ref{m:fit} to obtain the isomorphism
+		\[
+		A/(A\cap B)\cong(A+B)/B.
+		\]
+		Write down the image of a general coset, and check directly that your formula does not depend on the chosen representative.
+		\item Take $M=\Z$ as a $\Z$-module, with $A=4\Z$ and $B=6\Z$. Compute all four of the submodules appearing in the theorem, list the elements of both quotients, and match them under your isomorphism. Identify an element generating each quotient, and say where it goes.
+	\end{enumerate}
+\end{problem}
+
+\begin{solution}
+	\bbni
+	\begin{enumerate}[label=(\alph*),ref=\theenumi\alph*]
+		\item
+		\item
+		\item
+		\item
+	\end{enumerate}
+\end{solution}
+
+\newpage
+
+Suppose $N\subset L\subset M$ are submodules. We may form $M/L$ directly, or we may first form $M/N$ and then take the quotient by $L/N$. The third isomorphism theorem says that these two constructions give isomorphic modules. The correspondence theorem describes all submodules of $M/N$ in terms of the submodules of $M$ which contain $N$.
+
+\begin{theorem}[Third Isomorphism and Correspondence Theorems]
+	Let $N\subset M$ be a submodule and let $\pi:M\to M/N$ be the quotient map. The assignments $L\mapsto L/N=\pi(L)$ and $U\mapsto \pi^{-1}(U)$ give mutually inverse, inclusion-preserving bijections
+	\[
+	\left\{L\subset M \;\; \big| \;\; L\text{ a submodule containing }N\right\}
+	\longleftrightarrow
+	\left\{U\subset M/N \;\; \big| \;\; U\text{ a submodule}\right\}.
+	\]
+	Moreover, for $N\subset L\subset M$ there is an isomorphism of $R$-modules
+	\[
+	(M/N)/(L/N)\ \xrightarrow{\ \sim\ }\ M/L,\qquad
+	(m+N)+(L/N)\longmapsto m+L.
+	\]
+\end{theorem}
+
+Since the quotient map sends every element of $N$ to zero, the preimage of any submodule of $M/N$ contains $N$. Conversely, a submodule $L\subset M$ containing $N$ determines the submodule $L/N\subset M/N$. The correspondence theorem says that these two constructions undo one another and preserve inclusion. We prove both statements in the following exercise.
+
+\hrulefill
+
+\begin{problem}{9}\label{m:third}
+	\textbf{The Third Isomorphism and Correspondence Theorems.} Throughout this exercise let $N\subset L\subset M$ be submodules and let $\pi:M\to M/N$ be the quotient map.
+	\begin{enumerate}[label=(\alph*),ref=\theenumi\alph*]
+		\item Show that $L/N=\left\{\ell+N \;\; \big| \;\; \ell\in L\right\}$ is a submodule of $M/N$, and that $\phi:M/N\to M/L$, $m+N\mapsto m+L$, is well defined and $R$-linear. Where do you use the inclusion $N\subset L$?
+		\item Show that $\phi$ is surjective with $\ker(\phi)=L/N$. Deduce the third isomorphism theorem, and write its formula on a coset of a coset.
+		\item If $U$ is a submodule of $M/N$, prove that $\pi^{-1}(U)$ is a submodule of $M$ containing $N$.
+		\item Prove the two identities
+		\[
+		\pi^{-1}(L/N)=L,\qquad \pi\bigl(\pi^{-1}(U)\bigr)=U,
+		\]
+		and conclude that $L\mapsto L/N$ and $U\mapsto \pi^{-1}(U)$ are inverse bijections. This is the correspondence theorem.
+		\item Check that both assignments preserve inclusion. What is $\pi^{-1}(0)$, and what is $\pi^{-1}(M/N)$? Explain why the submodules of $M$ which do not contain $N$ are excluded.
+		\item Take $M=\Z$ and $N=12\Z$. List every submodule of $\Z$ containing $12\Z$, together with its corresponding submodule of $\Z/12\Z$. Then take $L=4\Z$ and write out the third isomorphism theorem for these particular modules.
+	\end{enumerate}
+\end{problem}
+
+\begin{solution}
+	\bbni
+	\begin{enumerate}[label=(\alph*),ref=\theenumi\alph*]
+		\item
+		\item
+		\item
+		\item
+		\item
+		\item
+	\end{enumerate}
+\end{solution}
+
+\newpage
+
+%
+%Let $M_1,\ldots,M_t$ be finitely many $R$-modules. Their \emph{direct sum} is
+%\[
+% M_1\oplus\cdots\oplus M_t
+% \coloneqq\left\{(m_1,\ldots,m_t) \;\; \big| \;\; m_i\in M_i\right\},
+%\]
+%with addition and scalar multiplication defined coordinatewise. For a finite collection this is also the direct product. Each $M_i$ is identified with the submodule of tuples whose other coordinates are zero, and every tuple is uniquely a sum of elements of these coordinate submodules.
+%
+%The coordinate inclusions and projections let us compare a direct sum with its factors. A homomorphism out of $M\oplus P$ is determined by its restrictions to $M$ and to $P$, and any pair of homomorphisms from these factors to a common target defines one from the direct sum. We will also compare $A\oplus B$ with $A+B$ when $A$ and $B$ are submodules of a common module. The addition map $(a,b)\mapsto a+b$ is surjective, and it is an isomorphism exactly when $A\cap B=\{0\}$. In this case we call $A+B$ an \emph{internal direct sum}: every element has a unique expression as an element of $A$ plus an element of $B$. We prove these statements in the following exercise.
+%
+%\hrulefill
+%
+%\begin{problem}{10}\label{m:sums}
+%	\textbf{Finite Direct Sums.} Throughout this exercise let $M$, $P$, and $Q$ be $R$-modules.
+%	\begin{enumerate}[label=(\alph*),ref=\theenumi\alph*]
+%		\item Verify the module axioms for $M\oplus P$. Write down the inclusions $i_M(m)=(m,0)$ and $i_P(p)=(0,p)$ and the projections $p_M$ and $p_P$, and check that all four are module homomorphisms.
+%		\item Verify the identities $p_M\circ i_M=\Id_M$, $p_P\circ i_P=\Id_P$, $p_M\circ i_P=0$, $p_P\circ i_M=0$, and $i_M\circ p_M+i_P\circ p_P=\Id_{M\oplus P}$, where maps are added pointwise. Interpret the last of these on a tuple.
+%		\item Given module homomorphisms $\phi:M\to Q$ and $\psi:P\to Q$, prove that there is a unique module homomorphism $\theta:M\oplus P\to Q$ with $\theta\circ i_M=\phi$ and $\theta\circ i_P=\psi$. Find its formula by writing $(m,p)=(m,0)+(0,p)$.
+%		\item If $A,B\subset M$ are submodules, show that the addition map $A\oplus B\to A+B$ is surjective with kernel $\left\{(c,-c) \;\; \big| \;\; c\in A\cap B\right\}$. Deduce that it is an isomorphism exactly when $A\cap B=\{0\}$.
+%		\item Compute the kernel and the image of the $\Z$-linear map $\Z^2\to\Z$ given by $(a,b)\mapsto2a+3b$, and exhibit an element mapping to $1$. Use Problem~\ref{m:fit} to describe the quotient of $\Z^2$ by the kernel.
+%	\end{enumerate}
+%\end{problem}
+%
+%\begin{solution}
+%	\bbni
+%	\begin{enumerate}[label=(\alph*),ref=\theenumi\alph*]
+%		\item
+%		\item
+%		\item
+%		\item
+%		\item
+%	\end{enumerate}
+%\end{solution}
+%
+%\newpage
+%
+%
+%We turn next to generators and bases, where the difference between a field and a general ring becomes most visible. Let $M$ be an $R$-module. Given $m_1,\ldots,m_t\in M$, the submodule they \emph{generate} is
+%\[
+% Rm_1+\cdots+Rm_t
+% =\left\{r_1m_1+\cdots+r_tm_t \;\; \big| \;\; r_i\in R\right\}.
+%\]
+%Compare this with the ideal generated by elements of a commutative ring in Worksheet 1.1. The elements $m_1,\ldots,m_t$ are \emph{generators} of $M$ if this submodule is all of $M$. We call $M$ \emph{finitely generated} if it admits a finite set of generators, and \emph{cyclic} if a single element generates it.
+%
+%A subset $B\subset M$ is \emph{linearly independent} if the only relation $r_1b_1+\cdots+r_sb_s=0$ among distinct elements of $B$ is the one with every coefficient zero. A \emph{basis} is a linearly independent generating set, or equivalently a subset such that every element of $M$ has a unique expression as a finite linear combination of its elements. A module which has a basis is called \emph{free}. These are the same definitions as in linear algebra, but a module need not have a basis.
+%
+%For a nonzero ring $R$, the module $R^t$ is free with the standard basis $e_1,\ldots,e_t$, where $e_i$ has $1_R$ in coordinate $i$ and zero elsewhere. A homomorphism out of $R^t$ is determined by the images of these basis elements, and those images can be chosen arbitrarily. Consequently, choosing $t$ generators of $M$ gives a surjective homomorphism $R^t\to M$, and these generators form a basis exactly when this homomorphism is also injective. We use this observation in the following exercise to show that every finitely generated module is a quotient of a finite free module. Throughout the next two problems, assume $R\ne0$.
+%
+%\hrulefill
+%
+%\begin{problem}{11}\label{m:free}
+%	\textbf{Generators and Free Modules.} Throughout this exercise let $M$ be an $R$-module and let $m_1,\ldots,m_t\in M$.
+%	\begin{enumerate}[label=(\alph*),ref=\theenumi\alph*]
+%		\item Prove that $Rm_1+\cdots+Rm_t$ is a submodule of $M$ containing each $m_i$, and that it is contained in every submodule containing all of the $m_i$.
+%		\item Let $e_i\in R^t$ have $1_R$ in coordinate $i$ and zero elsewhere. Show that every tuple has a unique expression $\sum r_ie_i$, so that $R^t$ is free with its standard basis. Include the case $R^0=0$, with its empty basis.
+%		\item Prove that
+%		\[
+%		\phi:R^t\to M,\qquad (r_1,\ldots,r_t)\mapsto\sum_{i=1}^t r_im_i
+%		\]
+%		is the unique module homomorphism with $\phi(e_i)=m_i$ for every $i$.
+%		\item Show that $\phi$ is surjective exactly when the $m_i$ generate $M$, and bijective exactly when the list $m_1,\ldots,m_t$ is a basis. Deduce that every finitely generated module is a quotient of some $R^t$.
+%		\item In the $\Z$-module $\Z/12\Z$, describe the submodules generated by $\overline8$ and by $\overline6$, and show that $\overline1$ generates the whole module. In the $\K[x]$-module $\K[\varepsilon]=\K[x]/\langle x^2\rangle$, describe the submodules generated by $1$ and by $\varepsilon$. Which of these elements generates the whole module?
+%	\end{enumerate}
+%\end{problem}
+%
+%\begin{solution}
+%	\bbni
+%	\begin{enumerate}[label=(\alph*),ref=\theenumi\alph*]
+%		\item
+%		\item
+%		\item
+%		\item
+%		\item
+%	\end{enumerate}
+%\end{solution}
+%
+%\newpage
+%
+%
+%Over a field every generating set contains a basis, and every linearly independent set extends to a basis. Neither statement holds for modules over an arbitrary ring. For example, $\Z/n\Z$ is cyclic as a $\Z$-module, but for $n\geq2$ it has no basis: multiplication by the nonzero integer $n$ sends every element to zero. Even in the free module $\Z$, generating sets and linearly independent sets need not behave as they do in a vector space. We examine these failures in the following exercise, and compare them with the module $V_T$ from Problem~\ref{m:nilpotent}.
+%
+%\hrulefill
+%
+%\begin{problem}{12}\label{m:bases}
+%	\textbf{Bases over General Rings.} Throughout parts (a) and (b) let $n\geq2$ be an integer.
+%	\begin{enumerate}[label=(\alph*),ref=\theenumi\alph*]
+%		\item Show that $\Z/n\Z$ is generated by one element over $\Z$, and that this element has more than one expression as an integer multiple of itself.
+%		\item Prove that a nonzero free $\Z$-module contains a nonzero element which is not killed by $n$. Since $n$ kills every element of $\Z/n\Z$, conclude that this module has no basis at all, of any size.
+%		\item In the $\Z$-module $\Z$, show that $\{2,3\}$ generates but contains no basis as a subset. Check each singleton, and exhibit a nontrivial integer relation between $2$ and $3$.
+%		\item Show that $\{2\}\subset\Z$ is linearly independent, meaning that $a\cdot2=0$ forces $a=0$, but that it cannot be extended to a basis of $\Z$. Hint: for any nonzero integer $b$, compare $b\cdot2$ and $2\cdot b$.
+%		\item The module $V_T$ of Problem~\ref{m:nilpotent} has a basis of two elements over $\K$ and a single generator over $\K[x]$. Show that it has no basis over $\K[x]$ by considering the action of $x^2$, and explain how each of these three statements depends on the chosen ring of scalars.
+%	\end{enumerate}
+%\end{problem}
+%
+%\begin{solution}
+%	\bbni
+%	\begin{enumerate}[label=(\alph*),ref=\theenumi\alph*]
+%		\item
+%		\item
+%		\item
+%		\item
+%		\item
+%	\end{enumerate}
+%\end{solution}
+%
+%\newpage
+
+
+Let $M$ and $P$ be $R$-modules. The set $\Hom_R(M,P)$ is itself an abelian group under pointwise addition:
+\[
+(f+g)(m)=f(m)+g(m),\qquad (-f)(m)=-f(m),
+\]
+with the zero homomorphism as its identity element. Thus the collection of homomorphisms between two modules is again an algebraic object of the same general kind. Over a commutative ring, pointwise scalar multiplication also makes $\Hom_R(M,P)$ an $R$-module. Since our rings need not be commutative, we use only its abelian group structure here.
+
+Maps out of cyclic modules give the first computations of this kind. Such a map is determined by the image of a generator, but that image is not arbitrary: it must satisfy whatever relations the generator satisfies. For a positive integer $m$, a homomorphism from $\Z/m\Z$ to an abelian group $P$ is therefore the same thing as an element $y\in P$ with $my=0$. When $P=\Z/n\Z$ this description leads to
+\[
+\Hom_{\Z}(\Z/m\Z,\Z/n\Z)\cong\Z/\gcd(m,n)\Z.
+\]
+In the following exercise we construct this isomorphism by finding the possible images of $\overline1$, and then use the same description to compute kernels and images in some examples.
+
+\hrulefill
+
+\begin{problem}{10}\label{m:cyclic}
+	\textbf{Homomorphisms between Cyclic Abelian Groups.} Throughout parts (b) through (g) let $m,n\geq1$ be integers and put $d\coloneqq\gcd(m,n)$.
+	\begin{enumerate}[label=(\alph*),ref=\theenumi\alph*]
+		\item Let $M$ and $P$ be $R$-modules. Check that pointwise addition and negation preserve $R$-linearity. Identify the zero map, and verify that $\Hom_R(M,P)$ is an abelian group.
+		\item Show that a homomorphism $\phi:\Z/m\Z\to\Z/n\Z$ is determined by $y=\phi(\overline1)$, and prove that $my=0$ is necessary. Conversely, if $my=0$, show that $\phi(\overline a)=ay$ is well defined and a homomorphism.
+		\item Write $m=dm'$ and $n=dn'$ with $\gcd(m',n')=1$. Show that $my=0$ in $\Z/n\Z$ exactly when $y$ is represented by a multiple of $n'$. Hint: use B\'ezout's identity to justify the divisibility step.
+		\item Show that the assignment
+		\[
+		\Z/d\Z\longrightarrow\Hom_{\Z}(\Z/m\Z,\Z/n\Z),\qquad
+		\overline t\longmapsto
+		\bigl(\overline a\longmapsto\overline{a(n/d)t}\bigr)
+		\]
+		is a well-defined isomorphism of abelian groups. In particular, exactly how many such homomorphisms are there?
+		\item List every map $\Z/6\Z\to\Z/8\Z$ by its value on $\overline1$, and compute the kernel and the image of each. Check Problem~\ref{m:fit} against these examples, both numerically and by writing down the induced isomorphism.
+		\item Consider $\phi:\Z/12\Z\to\Z/18\Z$ with $\phi(\overline1)=\overline6$. Verify that it exists, and compute its kernel, its image, and the induced isomorphism on the quotient. Does a map with $\phi(\overline1)=\overline1$ exist? Explain using the relation satisfied by $\overline1$ in the domain.
+		\item Use the possible orders of $\phi(\overline1)$ to show that an injection $\Z/m\Z\to\Z/n\Z$ exists exactly when $m\mid n$, while a surjection exists exactly when $n\mid m$. Write down explicit maps in both cases.
+	\end{enumerate}
+\end{problem}
+
+\begin{solution}
+	\bbni
+	\begin{enumerate}[label=(\alph*),ref=\theenumi\alph*]
+		\item
+		\item
+		\item
+		\item
+		\item
+		\item
+		\item
+	\end{enumerate}
+\end{solution}
+
+\newpage
+
+We finish by describing module structures in terms of ring homomorphisms. Recall from Worksheet 1.1 that for an abelian group $M$, the endomorphism ring $\End_{\Z}(M)=\Hom_{\Z}(M,M)$ has pointwise addition and multiplication given by composition, with $fg=f\circ g$. Its multiplicative identity is $\Id_M$.
+
+If $M$ is an $R$-module, then multiplication by a scalar $r$ is an additive map $\rho(r):M\to M$, where $\rho(r)(m)=rm$. The module axioms say exactly that the resulting function
+\[
+\rho:R\longrightarrow\End_{\Z}(M)
+\]
+is a ring homomorphism. For instance, the associativity axiom $(rs)m=r(sm)$ becomes the identity $\rho(rs)=\rho(r)\circ\rho(s)$, and the identity axiom $1_Rm=m$ becomes $\rho(1_R)=\Id_M$, which is condition (iii) in the definition of a ring homomorphism. Conversely, any such ring homomorphism defines an $R$-module structure on the abelian group $M$. Thus giving an $R$-module structure on $M$ is the same thing as giving a ring homomorphism $R\to\End_{\Z}(M)$.
+
+Once an $R$-action has been fixed we may form the ring $\End_R(M)$ of those endomorphisms which respect it. This is a subring of $\End_{\Z}(M)$, with the same addition, composition, and identity element, and it acts on $M$ by \emph{evaluation}, $f\cdot m=f(m)$. The condition $f(rm)=rf(m)$ says precisely that this action commutes with the original one. Note that over a noncommutative ring the scalar operators $\rho(r)$ need not themselves be $R$-linear, which is why the target of $\rho$ is $\End_{\Z}(M)$ and not $\End_R(M)$. The column module over $\Mat_2(\K)$ makes this distinction concrete, as we see in the following exercise.
+
+\hrulefill
+
+\begin{problem}{11}\label{m:end}
+	\textbf{Module Structures and Endomorphism Rings.} Throughout this exercise let $M$ be an $R$-module.
+	\begin{enumerate}[label=(\alph*),ref=\theenumi\alph*]
+		\item Check the ring axioms for $\End_{\Z}(M)$. For one of the two distributive laws you will need that the operators are additive; identify which one, and explain why the other is formal. Show that $\End_R(M)$ is a subring containing the same identity element.
+		\item Starting from the module structure, define
+		\[
+		\rho:R\to\End_{\Z}(M),\qquad \rho(r)(m)=rm.
+		\]
+		Show that each $\rho(r)$ is additive and that $\rho$ is a ring homomorphism, and identify which module axiom gives each property.
+		\item Conversely, given a ring homomorphism $\rho:R\to\End_{\Z}(M)$, set $rm\coloneqq\rho(r)(m)$ and verify the module axioms. Show that this construction inverts the one in part (b). Describe $\rho(x)$ for a $\K[x]$-module $V_T$.
+		\item Prove that $M$ is a left $\End_R(M)$-module by evaluation, $f\cdot m=f(m)$, using the convention $fg=f\circ g$. Show also that the condition $f(rm)=rf(m)$ says that these operators commute with the original scalar operators.
+		\item For the column module $M=\K^2$ over $R=\Mat_2(\K)$, show that $\rho$ is injective. Show also that $\rho(A)$ need not be $R$-linear, by taking $A=E_{12}$ and $B=E_{21}$ and comparing $A(Be_1)$ with $B(Ae_1)$; here $E_{ij}$ denotes the matrix units of Worksheet 1.1.
+		\item Determine $\End_{\Mat_2(\K)}(\K^2)$. First use the scalar matrices to show that every module endomorphism is $\K$-linear, and then require its matrix to commute with $E_{11}$, $E_{12}$, and $E_{21}$. Compare the answer with the endomorphism ring you computed in Problem~\ref{m:nilpotent}, and say what each computation tells you about the module.
+	\end{enumerate}
+\end{problem}
+
+\begin{solution}
+	\bbni
+	\begin{enumerate}[label=(\alph*),ref=\theenumi\alph*]
+		\item
+		\item
+		\item
+		\item
+		\item
+		\item
+	\end{enumerate}
+\end{solution}
+
+
+\end{document}

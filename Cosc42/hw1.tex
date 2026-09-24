@@ -1,0 +1,89 @@
+\documentclass[12pt]{article}
+
+\include{../style}
+\usepackage{euler}
+
+\begin{document}
+
+\input{title}
+
+\begin{problem}{1. Increasing Common Knowledge}
+
+    Consider the Nanoland System, $\textit{Nanoland}(w)$. Let $\phi_i := |w| \geq i$, i.e., $\phi_i$ states that at least $i$ islanders have purple eyes. Prove that the following holds after $d$ days:
+    \[\forall d \in \N: E^\infty \phi_{\min \{d, \,|w|\}} \]
+    
+\end{problem}
+
+\begin{solution}
+    \bbni
+
+    We will show this by induction. 
+    
+    \textbf{Base Case:} $d = 1$. 
+
+    This is the day of the revelation, so we know that $E^\infty \phi_1 \equiv E^\infty \phi_{\min \{1, \,|w|\}}$. 
+
+    \textbf{Inductive Hypothesis:} Assume that $\forall k < d: E^\infty \phi_{\min \{k, \,|w|\}}$, that is on day $k$ it is common knowledge that at least $\min\{k, |w|\}$ islanders have purple eyes. 
+
+    \textbf{Inductive Step:} Let $d = k + 1$. From the inductive hypothesis we know that on day $d-1$, $E^\infty \phi_{\min\{d-1, |w|\}}$ holds.  On day $d$ we have the following cases: 
+
+    \textbf{Case 1:} $|w| \geq d$. 
+    
+    From the characterization theorem we know that everyone showed up to lunch, and if $|w| < d$ they would have left on night $|w|$. So, from the IH every islander knows that at least $d-1$ islanders have purple eyes; and if exactly $d-1$ islanders had purple eyes they'd have left last night. But since nobody left, at least $d$ islanders have purple eyes. Since this argument was made by deduction from facts that are common knowledge, we know that every islander knows that every other islander can make the same deduction, and we have,
+    \[E^\infty \phi_d \equiv E^\infty \phi_{\min\{d, |w|\}}\]
+    \textbf{Case 2:} $|w| < d$. 
+
+    Note that,
+    \[|w| < d \implies |w| \leq d-1 \implies \min\{d-1, |w|\} = |w|\]
+    And from the IH, we know that on day $d-1$, it is common knowledge that at least $|w|$ islanders have purple eyes. Then on day $d$, 
+    \[E^\infty \phi_{|w|} \equiv E^\infty \phi_{\min\{d, |w|\}}\]
+    Thus, the statement holds after $d$ days. 
+\end{solution}
+\newpage
+
+\begin{problem}{2. Akasavani Says More}
+
+    Consider a variation of Nanoland, called Laghuland, which is like Nanoland, except that on Day $1$, Akasavani makes the following alternate revelation: “at least five islanders have purple eyes.”
+    State and prove a Characterization Theorem for Laghuland (akin to the characterization theorem we showed for Nanoland).
+\end{problem}
+
+
+\begin{solution}
+    \bbni
+    
+    Since Nanoland and Laghuland differ only in the revelation, we can use the same definitions. That is the system $Laghuland(\Pi, w)$ refers to 
+    \[\forall \pi \in \Pi, d \in \N: A^d(\pi) = \begin{cases*}
+        1 & \text{if $K_\pi(w(\pi)=1)$ after $R_{d-1}$} \\ 
+        0 & \text{otherwise}
+    \end{cases*}\]
+    We will prove the following characterization theorem: 
+    
+    For every $k \geq 5$, the following statement $S_k$ is true, 
+    \[\text{If } |w| = k, \text{ then } \forall \pi \in \Pi: A^d(\pi) = \begin{cases*}
+        0 & \text{if $d < k - 4$} \\ 
+        w(\pi) & otherwise
+    \end{cases*}\]
+
+    We will prove $\forall k \in \N, k \geq 5: S_k$ by induction over $k$. 
+
+    \textbf{Base Case:} $k = 5$. 
+
+    In this case exactly five islanders, WLOG say $\pi_1, \cdots, \pi_5 \in \Pi$, have purple eyes. Since Akasavani introduces $E^\infty \phi_5$, if $i \in \{1, \ldots, 5\}$, then $\pi_i$ sees exactly $4$ purple eyed islanders. From $\pi_i$'s observation and Akasavani's truthfullness, $\pi_i$ can conclude that $w(\pi_i) = 1$ and $A^1(\pi_i) = 1$ for all $i \in \{1, \ldots, 5\}$. Since $K_{\pi_i}(w(\pi_i) = 1)$ on Day $1$, it follows that $K_{\pi_i}(w(\pi_i) = 1)$ on every subsequent day. So $\forall d \geq 1: A^d(\pi_i) = 1$. Since every other islander ($i \notin \{1, \cdots 5\}$) sees $5$ purple eyed islanders, they cannot deduce that they have purple eyes, so $A^d (\pi_i) = 0$ for all $d$. So $S_5$ holds. 
+
+    \textbf{Inductive Hypothesis:} Assume $S_k$ for some $k \geq 5$. 
+
+    \textbf{Inductive Step:} To prove $S_{k+1}$, consider a Laghuland system where $|w| = k + 1$ and an arbitrary islander $\pi$ such that $w(\pi) = 1$. Islander $\pi$ cannot (initially) distinguish between his world $w = w_\pi^1$ and $w_\pi^0$ after Day 1, thus $\pi$'s action on Night 1 will be identical to his action in world $w_\pi^0$ on Night 1, which the inductive hypothesis establishes is the action $A^1(\pi)=0$.
+
+    In this manner, we can inductively establish that $A^d(\pi)=0$ for all $\pi$ with purple eyes for all $d \leq k - 4$. After the first $k-4$ nights, however, the indistinguishability between worlds $w$ and $w_\pi^0$ no longer holds, since in the case of $w_\pi^0$,  all $k$ islanders with purple eyes would have left the island on night $k-4$ by $S_k$.
+    
+    Since $\pi$ knows this fact on Day $k-3$, he can infer that $|w| \neq k$. This establishes $K_\pi(|w| \neq k)$. Furthermore, since $K_\pi(|w| \in \{k,k+1\})$ holds from the start of the execution, we conclude that $K_\pi(|w|=k+1)$. Thus, by the law, $A^{k-3}(\pi)=1$. Furthermore, since $K_\pi(|w|=k+1)$ holds at all subsequent days,
+    \[
+        \forall d \geq k - 3 : A^d(\pi)=1.
+    \]
+    Since every islander $\pi$ with $w(\pi) = 0$ sees $k$ purple eyed islanders, and cannot deduce that they have purple eyes, so $A^d (\pi) = 0$ for all $d$. 
+    Thus $S_{k+1}$ holds.
+
+\end{solution}
+
+
+\end{document}

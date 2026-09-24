@@ -1,0 +1,592 @@
+\documentclass[Notebook.tex]{subfiles}
+
+\begin{document}
+
+
+\ifSubfilesClassLoaded{
+    \input{title}
+}{}
+
+\begin{center}
+	{Worksheet 1.1: Rings, Homomorphisms, and Quotients}
+\end{center}
+
+A \emph{ring} $(R,+,\cdot)$ is an abelian group $(R,+,0_R)$ together with a multiplication $\cdot$ and an element $1_R\in R$ satisfying the following axioms:
+\begin{enumerate}[label=(\roman*)]
+	\item (Identity) $1_R\cdot a=a \cdot 1_R=a$ for all $a\in R$,
+	\item (Associativity) $(a\cdot b)\cdot c=a\cdot(b\cdot c)$ for all $a,b,c\in R$,
+	\item (Left Distributivity) $a\cdot(b+c)=a\cdot b+a \cdot c$ for all $a,b,c\in R$, and
+	\item (Right Distributivity) $(a+b)\cdot c=a\cdot c+b \cdot c$ for all $a,b,c\in R$.
+\end{enumerate}
+We call $1_{R}$ the \emph{multiplicative identity}. We generally write $ab$ for $a\cdot b$, and we will write $1$ and $0$ for $1_R$ and $0_R$ when the underlying ring is clear from context. A ring is \emph{commutative} if $ab=ba$ for all $a,b\in R$.
+
+Throughout this course, all rings have a multiplicative identity, but need not be commutative. In particular, matrix rings will be just as important to us as the ring of integers, or polynomial rings. The \emph{zero ring} is the unique ring with a single element which satisfies $1=0$. An element $u\in R$ is a \emph{unit} if there is an element $v\in R$ such that $uv=vu=1$. In this case we say that $v$ is the \emph{multiplicative inverse} of $u$, which we generally denote by $u^{-1}$. We write $R^\times$ for the set of units of $R$. A \emph{field} is a commutative ring with $1\ne0$ in which every nonzero element is a unit. The letter $\K$ will denote a field throughout these worksheets.
+
+The goal of this worksheet is to introduce three related ways of studying rings: their elements, their homomorphisms, and their ideals. You already know a number of examples, including $\Z$, $\Q$, $\R$, $\C$, and matrix rings. The definitions let us discuss the features these examples share, while retaining differences such as whether multiplication is commutative or whether nonzero elements can be inverted. We begin with some calculations that illustrate these differences.
+
+\hrulefill
+
+\begin{problem}{1}\label{r:first}
+	\textbf{Basic Ring Identities.} Throughout this question let $R$ be a ring.
+	\begin{enumerate}[label=(\alph*),ref=\theenumi\alph*]
+		\item Starting from the axioms, prove the following:
+		\begin{enumerate}[label=(\roman*),ref=\theenumi\roman*]
+			\item If $1$ and $1'$ both satisfy the identity axiom then $1=1'$. Hint: evaluate $1\cdot1'$ in two different ways.
+			\item If $0$ and $0'$ both satisfy the property of being additive identities then $0=0'$.
+			\item If $a+b=0$ and $a+c=0$ then $b=c$.
+		\end{enumerate}
+		Hence for any ring the additive and multiplicative identity elements are unique, and for any element $a\in R$ there is a unique additive inverse, which we generally denote $-a$.
+		\item Starting from the axioms, prove the following identities:
+		\begin{enumerate}[label=(\roman*),ref=\theenumi\roman*]
+			\item $a0=0a=0$ for all $a\in R$,
+			\item $(-a)b=-(ab)=a(-b)$ for all $a,b\in R$.
+		\end{enumerate}
+		\item If $1=0$, explain why the ring must have only one element.
+		\item Suppose $vu=1$ and $uw=1$. Compute $v(uw)$ and $(vu)w$ and conclude $v=w$. Deduce that $u$ is a unit and that its inverse is unique, so that the notation $u^{-1}$ is justified. Deduce also that $(u^{-1})^{-1}=u$.
+		\item Prove that $R^\times$ is a group under multiplication, with $(uv)^{-1}=v^{-1}u^{-1}$.
+	\end{enumerate}
+\end{problem}
+
+\begin{solution}
+	\bbni
+	\begin{enumerate}[label=(\alph*),ref=\theenumi\alph*]
+		\item
+		\begin{enumerate}[label=(\roman*),ref=\theenumi\roman*]
+			\item If $1$ and $1' \in R$ such that $1 \cdot a = a$ and $a \cdot 1' = a$, then we have, 
+			\[1 \cdot 1' = 1, \quad 1 \cdot 1' = 1'\]
+            Thus, $1 = 1'$. 
+			\item
+			\item
+		\end{enumerate}
+		\item
+		\begin{enumerate}[label=(\roman*),ref=\theenumi\roman*]
+			\item
+			\item
+		\end{enumerate}
+		\item
+		\item
+		\item
+	\end{enumerate}
+\end{solution}
+
+\newpage
+
+\begin{problem}{2}\label{r:examples}
+	\textbf{First Examples of Rings.}
+	\begin{enumerate}[label=(\alph*),ref=\theenumi\alph*]
+		\item For a positive integer $n$, use the familiar additive quotient group $\Z/n\Z$ and define $\overline a\,\overline b=\overline{ab}$. Check that this does not depend on the chosen representatives. What is the identity?
+		\item Characterize the units in the following rings:
+		\begin{multicols}{3}
+			\begin{enumerate}[label=(\roman*),ref=\theenumi\roman*]
+				\item $\Z$
+				\item $\C$
+				\item $\R$
+				\item $\K$
+				\item $\Z/12\Z$
+				\item $\Z/30\Z$
+				\item $\Z/4\Z$
+				\item $\Z/2\Z$
+				\item $\Z/n\Z$
+			\end{enumerate}
+		\end{multicols}
+		\item A nonzero element $a \in R$ is a \emph{zero-divisor} if there exists a nonzero element $b \in R$ such that $ab=ba=0$. Characterize the zero divisors in all of the rings from part (b).
+		\item Let $\Mat_n(\K)$ denote the set of $n\times n$ matrices over $\K$. Prove that $\Mat_{n}(\K)$ is a ring under normal matrix addition and multiplication. What are the identity elements?
+		\item For integers $1\leq i,j\leq n$ let $E_{i,j}$ denote the $n\times n$ matrix whose $(i,j)$-th entry is $1$ and all other entries are zero. Compute $E_{12}E_{21}$ and $E_{21}E_{12}$. What does this show about the ring $\Mat_{n}(\K)$?
+		\item Explain why the units of $\Mat_2(\K)$ are precisely the invertible matrices. Compare ``nonzero'' and ``invertible'' in $\Mat_2(\K)$ and in $\K$.
+		\item Give an example of two elements $u,v \in \Mat_{2}(\R)$ showing that in general $(uv)^{-1}=u^{-1}v^{-1}$ can fail.
+		\item Let $R$ be a ring and $\Mat_n(R)$ denote the set of $n\times n$ matrices whose entries are elements in $R$. Define a notion of matrix multiplication and matrix addition for elements of $\Mat_n(R)$ that agrees with our normal matrix operations when $R=\K$. Is $\Mat_n(R)$ a ring?
+	\end{enumerate}
+\end{problem}
+
+\begin{solution}
+	\bbni
+	\begin{enumerate}[label=(\alph*),ref=\theenumi\alph*]
+		\item
+		\item
+		\begin{enumerate}[label=(\roman*),ref=\theenumi\roman*]
+			\item
+			\item
+			\item
+			\item
+			\item
+			\item
+			\item
+			\item
+			\item
+		\end{enumerate}
+		\item
+		\item
+		\item
+		\item
+		\item
+		\item
+	\end{enumerate}
+\end{solution}
+
+\newpage
+
+If $R$ is a ring the \emph{polynomial ring} with coefficients in $R$ is the set $R[x]$ consisting of finite formal sums $a_0+a_1x+\cdots+a_dx^d$ with coefficients in $R$. Addition is coefficient-wise, and multiplication is obtained by distributing, using $x^ix^j=x^{i+j}$, and collecting coefficients of the same power of $x$. We can regard elements of $R$ as constant polynomials: their addition and multiplication in $R[x]$ agree with the original operations on $R$. The word ``formal'' means that equality is determined by the coefficients. This is slightly different from thinking of a polynomial as a function on $R$. Given an element $a\in R$, we can substitute $a$ for $x$ to obtain a value $f(a) \in R$, but the polynomial $f$ and the value $f(a)$ are different objects. Over some fields, even two different polynomials can define the same function. We will see an example below and then return to substitution when we discuss ring homomorphisms.
+
+For a nonzero polynomial $f$, its \emph{degree}, denoted $\deg(f)$, is the largest exponent with nonzero coefficient. That coefficient is called the \emph{leading coefficient}. Looking at leading coefficients is often a useful way to understand multiplication without expanding every term of a product.
+
+\hrulefill
+
+\begin{problem}{3}\label{r:polys}
+	\textbf{Polynomial Rings.}
+	\begin{enumerate}[label=(\alph*),ref=\theenumi\alph*]
+		\item Compute $(a+bx)(c+dx)$ in $\K[x]$. Identify the coefficient of $x^j$ in the product of two general polynomials.
+		\item By looking at leading coefficients, prove $\deg(fg)=\deg(f)+\deg(g)$ for nonzero $f,g\in \K[x]$. Explain why the same argument works in $\Z[x]$.
+		\item Determine the units of $\K[x]$. In particular, can you divide by $x$ in this ring?
+		\item Let $\FF_2=\Z/2\Z$. Evaluate $x^2-x$ at both elements of $\FF_2$. Is $x^2-x$ the zero polynomial? Explain the difference between equality of polynomials and equality of the functions they define on a field.
+	\end{enumerate}
+\end{problem}
+
+\begin{solution}
+	\bbni
+	\begin{enumerate}[label=(\alph*),ref=\theenumi\alph*]
+		\item
+		\item
+		\item
+		\item
+	\end{enumerate}
+\end{solution}
+
+\newpage
+
+A \emph{ring homomorphism} is a function $\phi:R\to S$ satisfying the following conditions for all $a,b\in R$:
+\begin{enumerate}[label=(\roman*)]
+	\item $\phi(a+b)=\phi(a)+\phi(b)$.
+	\item $\phi(ab)=\phi(a)\phi(b)$.
+	\item $\phi(1_R)=1_S$.
+\end{enumerate}
+The first condition says that a ring homomorphism is a homomorphism of the underlying additive groups. In particular, a ring homomorphism preserves $0$ and additive inverses. The second condition ensures that a ring homomorphism respects the multiplicative structure of both rings. Finally, the last condition ensures that all ring homomorphisms preserve the multiplicative identity. Condition (iii) does not follow from the others, and some others do not make this assumption in their definition of ring homomorphisms.
+
+A ring homomorphism $\phi:R \to S$ is a \emph{ring isomorphism} if it has an inverse $\phi^{-1}:S\to R$, which is also a ring homomorphism. Just as with groups, the condition of a ring homomorphism being a ring isomorphism is essentially a set theoretic one: a ring homomorphism $\phi:R \to S$ is an isomorphism if and only if $\phi$ is bijective. You will check this equivalence shortly. We say that two rings $R$ and $S$ are isomorphic, and write $R\cong S$, if there exists an isomorphism between them. An isomorphism allows us to identify two rings which are essentially the same up to relabeling their elements.
+
+As with group homomorphisms, a ring homomorphism comes with two very important subsets; its \emph{kernel} and its \emph{image}:
+\[
+\ker(\phi) \coloneqq \left\{ a \in R \;\; \big| \;\; \phi(a) = 0_S \right\}\subset R \qquad \text{and} \qquad \img(\phi) \coloneqq \left\{\phi(a) \;\; \big| \;\; a \in R\right\} \subset S.
+\]
+Notice that a map is surjective exactly when its image is the whole target, while its kernel measures its failure to be injective.
+
+A \emph{subring} of $R$ is a subset $T \subset R$ that is a ring under the inherited operations and contains $1_R$. The image of a ring homomorphism is a subring of its target. The kernel has a different closure property, which will lead us shortly to the notion of ideals.
+
+\hrulefill
+
+\begin{problem}{4}\label{r:maps}
+	\textbf{Examples and Properties of Ring Homomorphisms.} Throughout this exercise let $R$ be a ring.
+	\begin{enumerate}[label=(\alph*),ref=\theenumi\alph*]
+		\item Prove that a ring homomorphism preserves $0$, negatives, and units. If $u$ is a unit, what must $\phi(u)^{-1}$ be?
+		\item Show that there is exactly one ring homomorphism $\phi:\Z\to R$. Write down a concrete description of this homomorphism when $R=\Z,\Q,\Z/2\Z,\Z/12\Z$, and $\Mat_{2}(\R)$.
+		\item For each of the following examples determine whether a ring homomorphism exists, and if it does, whether it is unique:
+		\[
+		\Z/6\Z\longrightarrow\Z/3\Z,\qquad \Z/3\Z\longrightarrow\Z/6\Z,\qquad \Z/4\Z\longrightarrow\Z/4\Z.
+		\]
+		Hint: Start by deciding where $\overline1$ would have to go, and then use an additive relation it satisfies.
+		\item For $a\in R$, the \emph{evaluation at $a$ homomorphism} is given by $\ev_a:R[x]\to R$ by $f\mapsto f(a)$. Carefully check that $\ev_{a}$ is a surjective ring homomorphism.
+		\item Let $\phi:R \to S$ be a ring homomorphism. Prove that $\img(\phi) \subset S$ is a subring of $S$.
+		\item Let $\phi:R \to S$ be a ring homomorphism. Prove the following:
+		\begin{enumerate}[label=(\roman*),ref=\theenumi\roman*]
+			\item Prove that $\phi$ is surjective if and only if $\img(\phi)=S$.
+			\item Prove that $\phi$ is injective if and only if $\ker(\phi)=\{0\}$.
+			\item Prove that $\phi$ is an isomorphism if and only if $\phi$ is bijective.
+		\end{enumerate}
+	\end{enumerate}
+\end{problem}
+
+\begin{solution}
+	\bbni
+	\begin{enumerate}[label=(\alph*),ref=\theenumi\alph*]
+		\item
+		\item
+		\item
+		\item
+		\item
+		\item
+		\begin{enumerate}[label=(\roman*),ref=\theenumi\roman*]
+			\item
+			\item
+			\item
+		\end{enumerate}
+	\end{enumerate}
+\end{solution}
+
+\newpage
+
+We would now like to describe the subsets of a ring that can occur as kernels. The kernel of a ring homomorphism is an additive subgroup, but it satisfies more than closure under addition. If $\phi(a)=0$, then $\phi(ra)=\phi(r)\phi(a)=0$ and $\phi(ar)=\phi(a)\phi(r)=0$ for every $r\in R$. Thus multiplying an element of the kernel by an arbitrary ring element, on either side, keeps us in the kernel. A \emph{two-sided ideal} $I\subset R$ is an additive subgroup such that $ra\in I$ and $ar\in I$ for all $r\in R$ and $a\in I$. A \emph{left ideal} requires only the condition $ra\in I$. A \emph{right ideal} requires only that $ar\in I$.
+
+Unless we say otherwise, \emph{ideal} will always mean two-sided ideal. In a commutative ring this distinction disappears, however, in arbitrary rings it is very important. For example, we will see an example of a left ideal in a matrix ring that is not a two-sided ideal. Note also that an ideal need not be a subring under our convention: a proper ideal does not contain $1_R$.
+
+For elements $a_1,\ldots,a_t$ in a commutative ring $R$, we write
+\[
+\langle a_1,\ldots,a_t\rangle \coloneqq \left\{r_1a_1+\cdots+r_ta_t \;\; \big| \;\; r_i\in R\right \},
+\]
+which is the ideal \emph{generated} by $a_1,\ldots,a_t$. More generally, if we do not assume $R$ is commutative the ideal \emph{generated} by elements $a_1,\ldots,a_t \in R$ is
+\[
+\langle a_1,\ldots,a_t\rangle \coloneqq \left\{r_1a_1s_1+\cdots+r_ta_ts_t \;\; \big| \;\; r_i,s_i\in R\right \}.
+\]
+It is worth thinking for a moment, why these two definitions agree. In both situations we say that an ideal $I \subset R$ is a \emph{principal ideal} if and only if there exists $a\in R$ such that $I = \langle a \rangle$, i.e., $I$ is generated by a single element. More intrinsically, the ideal generated by $a_1,\ldots,a_t \in R$ is the smallest ideal of $R$ containing all of the $a_i$ simultaneously.
+
+\hrulefill
+
+\begin{problem}{5}\label{r:ideals}
+	\textbf{Properties \& Examples of Ideals.} Throughout this exercise let $R$ be a ring.
+	\begin{enumerate}[label=(\alph*),ref=\theenumi\alph*]
+		\item Let $I, J \subset R$ be ideals. Prove that $I\cap J$ is an ideal.
+		\item Give an example to show that if $I,J \subset R$ are ideals then $I\cup J$ need not be an ideal.
+		\item Let $I, J \subset R$ be ideals. Prove that the \emph{ideal sum} of $I$ and $J$ defined below is an ideal:
+		\[
+		I+J \coloneqq \left\{ a+b \;\; \big| \;\; a\in I, \; b\in J\right\}.
+		\]
+		\item Let $a_1,\ldots,a_t \in R$. Prove $\langle a_1,\ldots,a_t\rangle \subset R$ is a two-sided ideal.
+		\item Let $a_1,\ldots,a_t \in R$. Prove that $\langle a_1,\ldots,a_t\rangle$ is the smallest ideal of $R$ containing $a_1,\ldots,a_t$, i.e.,
+		\[
+		\langle a_1,\ldots,a_t\rangle = \bigcap_{\substack{J \subset R \\ a_1,\ldots,a_t \in J}} J.
+		\]
+		\item Let $I \subset R$ be an ideal. Prove that $I=R$ if and only if $I$ contains a unit. Deduce that the only ideals of a field $\K$ are $\{0\}$ and $\K$ itself.
+		\item Explicitly describe the ideals $\langle n\rangle \subset \Z$ and $\langle x^2\rangle\subset \K[x]$. Which polynomials occur in the second example, and is $x$ one of them?
+		\item Let $L\subset \Mat_2(\K)$ denote the set of matrices whose second column is zero. Prove that $L$ is a left ideal. Compute $E_{11}E_{12}$ and use it to show that $L$ is not a right ideal, and hence not a two-sided ideal.
+	\end{enumerate}
+\end{problem}
+
+\begin{solution}
+	\bbni
+	\begin{enumerate}[label=(\alph*),ref=\theenumi\alph*]
+		\item
+		\item
+		\item
+		\item
+		\item
+		\item
+		\item
+		\item
+	\end{enumerate}
+\end{solution}
+
+\newpage
+
+\begin{problem}{6}\label{r:ideal-homs}
+	\textbf{Ideals and Homomorphisms.} Throughout this exercise let $\phi:R\to S$ be a ring homomorphism.
+	\begin{enumerate}[label=(\alph*),ref=\theenumi\alph*]
+		\item Prove that $\ker(\phi)$ is a two-sided ideal of $R$.
+		\item Prove that if $J\subset S$ is an ideal then $\phi^{-1}(J)$ is an ideal. Explain why part (a) is the special case when $J=\langle0\rangle$.
+		\item Consider the inclusion $\psi:\Z \hookrightarrow\Z[x]$ given by $1\mapsto 1$ and the ideal $\langle 2 \rangle \subset \Z$. Show that $\psi(\langle 2 \rangle) \subset \Z[x]$ is not an ideal. Hence the image of an ideal need not be an ideal.
+		\item Prove that if $\phi$ is surjective then $\phi(I) \subset S$ is an ideal for all ideals $I \subset R$.
+	\end{enumerate}
+\end{problem}
+
+\begin{solution}
+	\bbni
+	\begin{enumerate}[label=(\alph*),ref=\theenumi\alph*]
+		\item
+		\item
+		\item
+		\item
+	\end{enumerate}
+\end{solution}
+
+\newpage
+
+Let $I\subset R$ be a two-sided ideal. Since $I$ is an additive subgroup and the additive group of $R$ is abelian, we can form the quotient group $R/I$. Its elements are cosets $r+I$, and $r+I=s+I$ if and only if $r-s\in I$. Addition is given by $(r+I)+(s+I)=(r+s)+I$. To obtain a \emph{quotient ring}, we define multiplication by
+\[
+(r+I)(s+I)=rs+I.
+\]
+The fact that $I$ is a two-sided ideal guarantees that this formula is well defined. Together with the identity $1_R+I$, it makes $R/I$ a ring! From group theory we know that a quotient group $R/I$ comes with a special group homomorphism we call the \emph{quotient map}
+\[
+\begin{tikzcd}[row sep = .3em, column sep = 4em]
+	R \arrow[r, "\pi"] & R/I & & r \arrow[r, mapsto] & r+I
+\end{tikzcd}.
+\]
+The map $\pi$ is surjective and the kernel of $\pi$, as a group homomorphism, is precisely $I$. However, multiplication on $R/I$ was defined precisely so that $\pi(r)\pi(s)=(r+I)(s+I)=rs+I=\pi(rs)$, and $\pi(1_R)=1_R+I$. Hence $\pi$ is actually a surjective ring homomorphism with kernel $I$. Notice that this really came down to the right definition of $R/I$. Consequently, every ideal occurs as the kernel of a ring homomorphism, and by Problem~\ref{r:ideal-homs} these are the only subsets which do.
+
+One way to think of $R/I$ is as the ring obtained when we impose the equations $a=0$ for all $a\in I$. For example, in $\Z/n\Z$ we are imposing the equation $n=0$, which forces integers differing by a multiple of $n$ to represent the same element. More generally, a ring homomorphism $\phi:R\to S$ which sends every element of $I$ to zero determines a unique ring homomorphism $\overline{\phi}:R/I\to S$ such that $\overline{\phi}\circ\pi=\phi$ where $\pi$ is the quotient homomorphism. We often express this relationship by drawing a \emph{commutative diagram}
+\[
+\begin{tikzcd}[column sep=4em,row sep=4em]
+	R \arrow[r,"\phi"] \arrow[d,two heads,"\pi"'] & S \\
+	R/I \arrow[ur,dashed,"\overline\phi"'] &
+\end{tikzcd}
+\]
+In particular, homomorphisms out of $R/I$ can be described entirely in terms of homomorphisms out of $R$, namely those which kill $I$. This is what is often called the universal property of quotient rings. We will prove the construction and this property together in the following exercise, and return to the general language of universal properties next week.
+
+\hrulefill
+
+\begin{problem}{7}\label{r:quotient}
+	\textbf{Construction and Properties of Quotient Rings.} Throughout this exercise let $I$ be a two-sided ideal of a ring $R$.
+	\begin{enumerate}[label=(\alph*),ref=\theenumi\alph*]
+		\item Suppose $r'=r+a$ and $s'=s+b$ with $a,b\in I$. Expand $r's'-rs$ and prove that it lies in $I$. Conclude that the proposed multiplication on $R/I$ is well defined.
+		\item Write down the formulas for addition, multiplication, and the identity element in $R/I$. Verify associativity and both distributive laws by computing with representatives. Why is $R/I$ still a ring when $I=R$, and which ring is it?
+		\item Prove that $\pi:R\to R/I$, $r\mapsto r+I$, is a surjective ring homomorphism with $\ker(\pi)=I$.
+		\item Return to the left ideal $L\subset \Mat_2(\K)$ from Problem~\ref{r:ideals}. We have $E_{11}+L=0+L$. Multiply these two representatives on the right by $E_{12}$ and compare the resulting cosets. Explain why the proposed multiplication on $\Mat_2(\K)/L$ is not well defined, and which hypothesis of part (a) has been lost.
+		\item Suppose $\phi:R\to S$ is a ring homomorphism with $I\subset\ker(\phi)$. Prove that $\overline\phi(r+I)=\phi(r)$ is a well-defined ring homomorphism $R/I\to S$, and that it is the unique one satisfying $\overline\phi\circ\pi=\phi$. Explain in words why a homomorphism out of $R/I$ is the same thing as a homomorphism out of $R$ which sends $I$ to zero.
+	\end{enumerate}
+\end{problem}
+
+\begin{solution}
+	\bbni
+	\begin{enumerate}[label=(\alph*),ref=\theenumi\alph*]
+		\item
+		\item
+		\item
+		\item
+		\item
+	\end{enumerate}
+\end{solution}
+
+\newpage
+
+The construction of quotient rings also clarifies the relationship between the kernel and the image of a ring homomorphism. A ring homomorphism $\phi:R\to S$ respects the relation $r+I=r'+I$ precisely when it sends every element of $I$ to zero. Whenever $I\subseteq\ker(\phi)$, we can therefore define a ring homomorphism
+\[
+\overline{\phi}:R/I\longrightarrow S,
+\qquad
+r+I\longmapsto\phi(r).
+\]
+Thus $\phi$ can be computed in two steps: first pass to the quotient, and then apply $\overline{\phi}$. Taking $I=\ker(\phi)$ gives a particularly useful description. Two elements of $R$ have the same image exactly when their difference lies in $\ker(\phi)$, so passing to this quotient identifies exactly the elements that $\phi$ identifies. The induced map is therefore injective, and its image is $\img(\phi)$.
+
+\begin{theorem}[First Isomorphism Theorem for Rings]
+	Let $\phi:R\to S$ be a ring homomorphism. Then the map
+	\[
+	\overline{\phi}:R/\ker(\phi)\longrightarrow\img(\phi),
+	\qquad
+	r+\ker(\phi)\longmapsto\phi(r),
+	\]
+	is an isomorphism of rings. In particular, there is a commutative diagram
+	\[
+	\begin{tikzcd}[row sep=4em, column sep=4em]
+		R \arrow[r, "\phi"] \arrow[d, two heads, "\pi"']
+		& S \\
+		R/\ker(\phi) \arrow[r, "\overline{\phi}", "\sim"']
+		& \img(\phi) \arrow[u, hook]
+	\end{tikzcd}
+	\]
+\end{theorem}
+
+Every ring homomorphism can therefore be understood as a quotient map followed by an isomorphism and an inclusion. If $\phi$ is surjective, then $\img(\phi)=S$, and the theorem gives $R/\ker(\phi)\cong S$. This provides our standard method for recognizing a quotient ring: construct a surjective homomorphism onto a ring we already understand, and then compute its kernel.
+
+\hrulefill
+
+\begin{problem}{8}\label{r:fit}
+	\textbf{First Isomorphism Theorem and Evaluation Maps.}
+	\begin{enumerate}[label=(\alph*),ref=\theenumi\alph*]
+		\item Use Problem~\ref{r:quotient} to construct the displayed map. Why is $\img(\phi)$ a ring, and why is its multiplicative identity the correct one?
+		\item Prove that the displayed map is surjective onto $\img(\phi)$, and that if two cosets have the same image then they are equal. Combine this with Problem~\ref{r:maps} to finish the proof of the theorem.
+		\item Apply the theorem to the reduction homomorphism $\Z\to\Z/n\Z$. Identify the kernel and describe the induced isomorphism explicitly. What does it do to the coset of $1$?
+		\item For $a\in\K$, prove that $\ker(\ev_a)=\langle x-a\rangle$. One inclusion is immediate. For the other, first factor $x^j-a^j$ as $(x-a)(x^{j-1}+x^{j-2}a+\cdots+a^{j-1})$ and then apply this to $f(x)-f(a)$.
+		\item Deduce that $\K[x]/\langle x-a\rangle\cong\K$, and write the isomorphism down explicitly. What does the class of $x$ become? Explain why this quotient is a genuinely different construction from the polynomial ring $\K[x]$ itself.
+	\end{enumerate}
+\end{problem}
+
+\begin{solution}
+	\bbni
+	\begin{enumerate}[label=(\alph*),ref=\theenumi\alph*]
+		\item
+		\item
+		\item
+		\item
+		\item
+	\end{enumerate}
+\end{solution}
+
+\newpage
+
+For the evaluation homomorphism $\ev_a:\K[x]\to\K$, the kernel $\langle x-a\rangle$ imposes the relation $x=a$, and the resulting quotient is therefore isomorphic to $\K$. We can use the same construction to impose a polynomial relation with a rather different effect. Consider the ring:
+\[
+\K[\varepsilon]\coloneqq \K[x]/\langle x^2\rangle
+\]
+where $\varepsilon = x+\langle x^2\rangle$. This ring is called the ring of \emph{dual numbers} over $\K$. The relation imposed by the quotient is $\varepsilon^2=0$. It does not impose $\varepsilon=0$, since the polynomial $x$ is not a multiple of $x^2$. The distinction is what makes the example useful: it gives us a very simple commutative ring containing a nonzero element whose square is zero.
+
+An element $a\in R$ of a ring is \emph{nilpotent} if $a^m=0$ for some integer $m\geq1$. Recall from Problem~\ref{r:examples} that a nonzero element $a$ is a zero divisor if $ab=ba=0$ for some nonzero $b \in R$. Hence a nonzero nilpotent element is always a zero divisor, however, the converse is not true. Neither phenomenon can occur in a field, as you saw when you computed the units of $\K$.
+
+Every element of $\K[\varepsilon]$ can be expressed using only the classes of $1$ and $x$, because every higher power of $x$ already lies in $\langle x^2\rangle$. In the following exercise we will show that this expression is unique, use it to describe the operations in $\K[\varepsilon]$, and determine which elements are units. We will revisit the same example as a module in the next worksheet.
+
+\hrulefill
+
+\begin{problem}{9}\label{r:dual}
+	\textbf{Computations with the Dual Numbers.} Throughout this exercise let $\K[\varepsilon]=\K[x]/\langle x^2\rangle$ and $\varepsilon=x+\langle x^2\rangle$.
+	\begin{enumerate}[label=(\alph*),ref=\theenumi\alph*]
+		\item Prove that every element of $\K[\varepsilon]$ can be written uniquely as $a+b\varepsilon$ with $a,b\in\K$. Hint: for uniqueness, use your description of $\langle x^2\rangle$ from Problem~\ref{r:ideals}. Deduce that $\varepsilon\ne0$ and $\varepsilon^2=0$.
+		\item Derive formulas for addition and multiplication in these coordinates. Compute $(1+\varepsilon)^2$, and say what happens when $\K=\FF_2$.
+		\item Suppose $(a+b\varepsilon)(c+d\varepsilon)=1$ and compare coefficients. Prove that $a+b\varepsilon$ is a unit if and only if $a\ne0$, and compute its inverse when it exists. Describe $\K[\varepsilon]^\times$.
+		\item Determine all nilpotent elements and all nonzero zero divisors of $\K[\varepsilon]$. For the nilpotents, begin by considering the constant coefficient of a power. For the zero divisors, use your description of $\K[\varepsilon]^\times$.
+		\item Construct the homomorphism $\K[\varepsilon]\to\K$ sending $a+b\varepsilon$ to $a$. Compute its kernel and identify the resulting quotient using the first isomorphism theorem.
+		\item More generally, prove that for $m\geq2$ every class in $\K[x]/\langle x^m\rangle$ has a unique representative $a_0+a_1x+\cdots+a_{m-1}x^{m-1}$. Exhibit a nonzero nilpotent element. Which parts of your argument for $m=2$ still work, and which need modification?
+	\end{enumerate}
+\end{problem}
+
+\begin{solution}
+	\bbni
+	\begin{enumerate}[label=(\alph*),ref=\theenumi\alph*]
+		\item
+		\item
+		\item
+		\item
+		\item
+		\item
+	\end{enumerate}
+\end{solution}
+
+\newpage
+
+So far we have used homomorphisms to compare two different rings. It is equally useful to consider the homomorphisms from a ring to itself, since these record the internal symmetries of that ring. A \emph{ring automorphism} of $R$ is a ring isomorphism $\phi:R\to R$, and we write $\Aut(R)$ for the set of all automorphisms of $R$. The identity map $\Id_R$ is an automorphism, a composition of two automorphisms is again an automorphism, and the inverse of an automorphism is one by definition. Hence $\Aut(R)$ is a group under composition, exactly as for groups and vector spaces. An automorphism is a relabeling of the elements of $R$ which preserves every feature expressible in terms of $+$, $\cdot$, and $1$. Units are sent to units, nilpotents to nilpotents, zero divisors to zero divisors, and ideals to ideals.
+
+Every ring comes with one systematic supply of automorphisms. The \emph{center} of a ring $R$ is
+\[
+Z(R)\coloneqq\left\{z\in R \;\; \big| \;\; zr=rz \text{ for all } r\in R\right\}.
+\]
+Notice that $R$ is commutative if and only if $Z(R)=R$. For a unit $u\in R^\times$, conjugation $\gamma_u(r)=uru^{-1}$ is an automorphism of $R$, and automorphisms of this form are called \emph{inner}. In a commutative ring every inner automorphism is the identity, so for rings such as $\Z$ or $\K[x]$ the interesting automorphisms must come from elsewhere; typically they come from substitution, as in the polynomial case where $x$ may be replaced by $ax+b$.
+
+Frequently we want to compare automorphisms relative to a subring which we regard as fixed. If $T\subset R$ is a subring, we write $\Aut_T(R)$ for the subgroup of automorphisms which fix every element of $T$. Complex conjugation is an element of $\Aut_\R(\C)$, and the ring $\K[x]$ is most naturally studied through $\Aut_\K(\K[x])$. This relative point of view is the starting point for Galois theory, which is a major focus of Math 111.
+
+\hrulefill
+
+\begin{problem}{10}\label{r:auto}
+	\textbf{Automorphisms of Rings.} Throughout this exercise let $R$ be a ring.
+	\begin{enumerate}[label=(\alph*),ref=\theenumi\alph*]
+		\item Prove that $\Aut(R)$ is a group under composition. Prove that any $\phi\in\Aut(R)$ restricts to a group automorphism of $R^\times$, and that $\phi$ carries nilpotent elements to nilpotent elements and zero divisors to zero divisors.
+		\item Prove that $\phi(I)$ is an ideal for every ideal $I\subset R$ and every $\phi\in\Aut(R)$, and that $I\mapsto\phi(I)$ is a bijection from the set of ideals of $R$ to itself. Hint: use Problem~\ref{r:ideals}.
+		\item Prove that $\Aut(\Z)$ and $\Aut(\Z/n\Z)$ are both trivial. Hint: use the uniqueness statement of Problem~\ref{r:maps}. Prove also that $\Aut(\Q)$ is trivial, by first showing that any automorphism fixes $\Z$ pointwise.
+		\item For $u\in R^\times$ define $\gamma_u(r)=uru^{-1}$. Prove that $\gamma_u\in\Aut(R)$ and that $u\mapsto\gamma_u$ is a group homomorphism $R^\times\to\Aut(R)$. Prove that its kernel is $Z(R)\cap R^\times$, and deduce that every inner automorphism is trivial precisely when $R$ is commutative.
+		\item Let $a\in\K^\times$ and $b\in\K$. Adapting your argument from Problem~\ref{r:maps}, show that $f(x)\mapsto f(ax+b)$ is a ring homomorphism $\K[x]\to\K[x]$ fixing $\K$ pointwise, and exhibit its inverse. Conversely, suppose $\phi\in\Aut_\K(\K[x])$. Using the degree formula of Problem~\ref{r:polys}, prove that $\deg(\phi(x))=1$, and conclude that $\Aut_\K(\K[x])$ consists exactly of these substitutions.
+		\item Prove that complex conjugation is an automorphism of $\C$ fixing $\R$ pointwise. Prove that $\Aut_\R(\C)$ has exactly two elements. Hint: such a $\phi$ is determined by $\phi(i)$, and $\phi(i)^2=-1$.
+		\item Let $A$ be the ring of dual numbers. Prove that any $\phi\in\Aut_\K(A)$ satisfies $\phi(\varepsilon)=b\varepsilon$ for some $b\in\K^\times$, and that every such $b$ arises. Hint: use your classification of the nilpotents and units from Problem~\ref{r:dual}. Deduce that $\Aut_\K(A)\cong\K^\times$.
+		\item Prove that $\gamma_u=\gamma_v$ in $\Aut(\Mat_n(\K))$ if and only if $u$ and $v$ differ by a nonzero scalar matrix, so that the inner automorphisms of $\Mat_n(\K)$ form a copy of $\GL_n(\K)/\K^\times$. It is a theorem of Skolem and Noether that these are in fact all of the automorphisms of $\Mat_n(\K)$; we will not prove this, but it is worth comparing with parts (e) and (g), where the automorphism groups were visibly not inner.
+	\end{enumerate}
+\end{problem}
+
+\begin{solution}
+	\bbni
+	\begin{enumerate}[label=(\alph*),ref=\theenumi\alph*]
+		\item
+		\item
+		\item
+		\item
+		\item
+		\item
+		\item
+		\item
+	\end{enumerate}
+\end{solution}
+
+\newpage
+
+The ideals $\langle n\rangle\subset\Z$ and $\langle x-a\rangle,\langle x^2\rangle\subset\K[x]$ are all principal. The definition of a generated ideal allows several generators, and it is natural to ask whether they can always be replaced by a single one. This is not the case in general, even for familiar commutative rings. We will prove that the ideal $\langle 2,x\rangle\subset\Z[x]$ is not principal. The argument uses only the degree of a product and the constant coefficient of a polynomial, so it does not require any general theory of factorization.
+
+\hrulefill
+
+\begin{problem}{11}\label{r:nonprincipal}
+	\textbf{A Nonprincipal Ideal in $\Z[x]$.} Throughout this exercise let $I=\langle 2,x\rangle\subset\Z[x]$.
+	\begin{enumerate}[label=(\alph*),ref=\theenumi\alph*]
+		\item Prove that $I$ consists exactly of the polynomials with even constant coefficient. For the harder inclusion, separate the constant term of a polynomial from all of the terms involving $x$.
+		\item Define $\theta:\Z[x]\to\FF_2$ by $\theta(f)=\overline{f(0)}$. Prove that $\theta$ is a surjective ring homomorphism with $\ker(\theta)=I$. Using Problem~\ref{r:fit}, deduce that $\Z[x]/I\cong\FF_2$ and in particular that $I\ne\Z[x]$.
+		\item Suppose for contradiction that $I=\langle d\rangle$ for some $d\in\Z[x]$. Since $2\in I$, there is a polynomial $h$ with $2=dh$. Use Problem~\ref{r:polys} to show that $d$ must be a nonzero constant integer.
+		\item Since $x\in I$, we may also write $x=dq$ for some $q\in\Z[x]$. Compare the coefficients of $x$ on both sides. What does this force $d$ to be?
+		\item Explain why the conclusion of (d) contradicts (b), and conclude that $I$ is not principal. Where exactly did the argument use both of the generators?
+	\end{enumerate}
+\end{problem}
+
+\begin{solution}
+	\bbni
+	\begin{enumerate}[label=(\alph*),ref=\theenumi\alph*]
+		\item
+		\item
+		\item
+		\item
+		\item
+	\end{enumerate}
+\end{solution}
+
+\newpage
+
+We finish by introducing several additional examples. Some extend constructions we have already met, such as polynomial rings and matrix rings; others produce a ring from a group or from a collection of operators. These examples will recur as the course develops. At this stage we will focus on their operations and on a few distinguishing properties.
+
+\begin{itemize}
+	\item \emph{Formal power series.} A formal power series is like a polynomial, except that it may have infinitely many nonzero coefficients. The ring $R[[t]]$ consists of expressions
+	\[
+	\sum_{j\geq0} a_j t^j = a_0+a_1t+a_2t^2+\cdots
+	\]
+	for $a_j \in R$. We add and multiply using the same rules as for polynomials. For example, the product of $a_0+a_1t+a_2t^2+\cdots$ and $b_0+b_1t+b_2t^2+\cdots$ begins
+	\[
+	a_0b_0+(a_0b_1+a_1b_0)t
+	+(a_0b_2+a_1b_1+a_2b_0)t^2+\cdots.
+	\]
+	In general, the coefficient of $t^n$ is $\sum_{i=0}^n a_ib_{n-i}$. Although the series can be infinite, computing any one coefficient requires only finitely many operations in $R$. The word ``formal'' means that we work with the coefficients without assigning a value to $t$ or asking whether the series converges. Two formal power series are equal exactly when all their corresponding coefficients agree.
+
+	\item \emph{Endomorphism rings.} An \emph{endomorphism} is a homomorphism from an object to itself. If $(B,+)$ is an abelian group, the set of its endomorphisms is denoted $\End_{\Z}(B)$. We make this set into a ring by defining
+	\[
+	(f+g)(b)=f(b)+g(b),
+	\qquad
+	(fg)(b)=f(g(b)).
+	\]
+	Thus addition means adding the outputs, while multiplication means applying $g$ first and then $f$. The zero element is the map sending every element to $0$, and the multiplicative identity is the identity map $\Id_B$. Similarly, the linear maps from a vector space $V$ to itself form a ring $\End_\K(V)$. If $V$ has dimension $n$, choosing a basis represents these maps by $n\times n$ matrices, with addition and composition corresponding to matrix addition and multiplication.
+
+	\item \emph{Upper-triangular matrices.} A $2\times2$ matrix is \emph{upper triangular} if its lower-left entry is zero. These matrices form a subring of $\Mat_2(\K)$: adding, subtracting, or multiplying two of them again gives an upper-triangular matrix, and the identity matrix is upper triangular. In particular,
+	\[
+	\begin{pmatrix}a&b\\0&d\end{pmatrix}
+	\begin{pmatrix}a'&b'\\0&d'\end{pmatrix}
+	=
+	\begin{pmatrix}aa'&ab'+bd'\\0&dd'\end{pmatrix}.
+	\]
+	This ring is not commutative. For example, if
+	\[
+	P=\begin{pmatrix}1&0\\0&0\end{pmatrix},
+	\qquad
+	N=\begin{pmatrix}0&1\\0&0\end{pmatrix},
+	\]
+	then $PN=N$ but $NP=0$.
+
+	\item \emph{Group rings.} Let $G$ be a group. For each $g\in G$, introduce a formal symbol $z_g$. The group algebra $\K[G]$ consists of formal sums
+	\[
+	\sum_{g\in G}a_g z_g,
+	\qquad a_g\in\K,
+	\]
+	in which only finitely many coefficients are nonzero. Here $z_g$ are formal symbols. We add by collecting coefficients of the same symbol, and multiply by distributing and using the rule
+	\[
+	z_gz_h=z_{gh}.
+	\]
+	Thus multiplication of the symbols records multiplication in the group. Two sums are equal exactly when the coefficient of each symbol agrees. The multiplicative identity is $z_e$, where $e$ is the identity of $G$. We define $\Z[G]$ analogously.
+
+	\item \emph{The Weyl algebra.} Suppose $\K$ has characteristic zero, meaning that $n\cdot 1_\K\ne 0$ for every positive integer $n$. Let $\End_\K(\K[t])$ denote the ring of $\K$-linear maps $\K[t]\to\K[t]$, where addition is pointwise and multiplication is composition. Consider the following two $\K$-linear endomorphisms
+	\[
+	\begin{tikzcd}[row sep = .3em, column sep = 4em]
+		\K[t] \arrow[r, "X"]  &\K[t]  & & \K[t] \arrow[r, "\partial"] & \K[t]\\
+		f \arrow[r, mapsto] & tf & & f \arrow[r,mapsto] & f'
+	\end{tikzcd}
+	\]
+	where $f'$ is the formal derivative of $f$. The first Weyl algebra $A_1(\K)$ is the subring of $\End_\K(\K[t])$ generated by $X$, $\partial$, and the scalar multiples $c\cdot\Id$ of the identity operator. That is, elements of $A_1(\K)$ are the finite sums of composites of copies of $X$ and $\partial$, scaled by elements of $\K$.
+
+	Since the product is composition, the operator on the right acts first. So $\partial X$ means ``multiply by $t$, then differentiate,'' while $X\partial$ means ``differentiate, then multiply by $t$.'' By the product rule these differ:
+	\[
+	(\partial X)(f)=(tf)'=f+tf',
+	\qquad
+	(X\partial)(f)=tf'.
+	\]
+	Subtracting, $(\partial X-X\partial)(f)=f$ for every $f\in\K[t]$, that is $\partial X-X\partial=\Id$. Since $\Id\ne 0$, we get $\partial X\ne X\partial$, so $A_1(\K)$ is not commutative.
+\end{itemize}
+
+\hrulefill
+
+\begin{problem}{12}\label{r:further}
+	\textbf{Power Series, Endomorphisms, and Other Ring Constructions.}
+	\begin{enumerate}[label=(\alph*),ref=\theenumi\alph*]
+		\item In $\K[[t]]$, prove that $f=\sum a_jt^j$ can be a unit only if $a_0\ne0$. When $a_0\ne0$, look for $g=\sum b_jt^j$ with $fg=1$ by solving first for $b_0$ and then recursively for $b_n$. Use this to characterize $\K[[t]]^\times$. Compare the inverse of $1-t$ here with the behavior of $1-t$ in $\K[t]$, which you determined in Problem~\ref{r:polys}.
+		\item Check that pointwise addition and composition make $\End_{\Z}(B)$ a ring.
+		\item Verify that the upper-triangular matrices form a subring of $\Mat_2(\K)$ containing the identity. Exhibit two of them which do not commute.
+		\item In $\K[S_3]$, compute $\big((12)+(23)\big)^2$, using right-to-left composition of permutations. Explain why this ring is noncommutative over every field, including in characteristic two.
+		\item Evaluate $(\partial X-X\partial)(t^j)$ for every $j\geq0$ and deduce that $\partial X-X\partial=1$ in $A_1(\K)$. Explain why the $1$ here denotes an identity operator rather than a constant polynomial.
+		\item Determine the units of the ring of upper-triangular matrices in $\Mat_2(\K)$, and show that this ring has nonzero nilpotent elements. Compare with your answer for the dual numbers in Problem~\ref{r:dual}.
+	\end{enumerate}
+\end{problem}
+
+\begin{solution}
+	\bbni
+	\begin{enumerate}[label=(\alph*),ref=\theenumi\alph*]
+		\item
+		\item
+		\item
+		\item
+		\item
+		\item
+	\end{enumerate}
+\end{solution}
+
+
+\end{document}
