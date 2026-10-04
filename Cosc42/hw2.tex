@@ -1,0 +1,139 @@
+
+\documentclass[12pt]{article}
+
+\include{../style}
+
+\begin{document}
+
+\input{title}
+
+\begin{problem}{1. Coordinated Attack with Very Weak Validity}
+
+    In the coordinated attack problem, consider weakening the Weak Validity condition further to:
+    \begin{tcolorbox}
+        \textbf{Very Weak Validity:}
+        \begin{enumerate}
+            \item[(0)] If $v_0 = v_1 = 0$ and no messages are dropped, then neither general decides $1$.
+            \item[(1)] If $v_0 = v_1 = 1$ and no messages are dropped, then neither general decides $0$.
+        \end{enumerate}
+    \end{tcolorbox}
+    The \emph{Very Weak Coordinated Attack Problem} is to design an algorithm that, in all runs, satisfies Termination, Agreement, and Very Weak Validity under unreliable message transmission.
+    Is the Very Weak Coordinated Attack Problem solvable or unsolvable? If it is solvable, give a protocol. If it is unsolvable, give a rigorous proof of its unsolvability.
+\end{problem}
+
+\begin{solution}
+    \bbni
+
+    We will show that the Very Weak Coordinated Attack Problem is unsolvable. Suppose for contradiction that $P$ is a protocol for the coordinated attack problem that satisfies termination, agreement, and very weak validity under unreliable message transmission.
+    Let $G_0, G_1$ denote General $0$ and General $1$ respectively, $R_r^{(i, j)}$ denote the run in which Generals $0, 1$ have inputs $(i,j)$ respectively, and no messages are dropped in the first $r$ rounds, and all messages are dropped after round $r$, and $T_r^{(i,j)}$ denote the run where no messages are dropped in the first $r-1$ rounds, in round $r$ only the message from $G_0$ to $G_1$ is dropped, and all messages after round $r$ are dropped. Let $A \approx_i B$ mean that General $i$ cannot distinguish scenario $A$ from scenario $B$. 
+    
+    By weak validity and termination, both generals decide by some round $r$. 
+    Assume the inputs of Generals $0,1$ are $(1,1)$ and no messages are dropped. Then they generals must decide $1$ by round $r$. Similarly, if the inputs were $(0,0)$ both generals must decide $0$ by round $r$. Since the output is determined by round $r$ and the Generals can't change their decision, we can assume that all messages after round $r$ are dropped. This run is $R_r^{(1,1)}$. Then we have the following: 
+    \begin{enumerate}
+        \item  $R_{r}^{(1,1)} \approx_0 T_r^{(1,1)}$ so $G_0$ decides $1$ by round $r$ in $T_r^{(1,1)}$. 
+        \item By agreement, both $G_0$ and $G_1$ decide $1$ in $T_r^{(1,1)}$
+        \item $G_1$ decides $1$ in round $r-1$ since $R_{r-1}^{(1,1)} \approx_1 T_r^{(1,1)}$.
+        \item By agreement, both $G_0$ and $G_1$ decide $1$ in $R_{r-1}^{(1,1)}$.
+        \item By induction on steps 1-4, we can see that both $G_0$ and $G_1$ decide $1$ in $R_0^{(1,1)}$.
+        \item But $R_0^{(1,1)} \approx_1 R_0^{(0,1)}$, so $G_1$ decides $1$ in round $0$.
+        \item By agreement, both $G_0$ and $G_1$ decide $1$ in $R_{0}^{(0,1)}$.
+        \item But $R_0^{(0,1)} \approx_0 R_0^{(0,0)}$, so $G_0$ decides $1$ in round $0$. 
+        \item By agreement, both $G_0$ and $G_1$ decide $1$ in $R_{0}^{(0,0)}$.
+        \item Since $R_0^{(0,0)} \approx_1 T_1^{(0,0)}$, $G_1$ decides $1$ in $T_1^{(0,0)}$. 
+        \item By agreement, both $G_0$ and $G_1$ decide $1$ in $T_{1}^{(0,0)}$.
+        \item Since $T_1^{(0,0)} \approx_0 R_1^{(0,0)}$, $G_0$ decides $1$ in $R_1^{(0,0)}$.
+        \item By agreement, both $G_0$ and $G_1$ decide $1$ in $R_{1}^{(0,0)}$.
+        \item Since $R_1^{(0,0)} \approx_1 T_2^{(0,0)}$, $G_1$ decides $1$ in round $2$. 
+        \item By agreement, both $G_0$ and $G_1$ decide $1$ in $T_{2}^{(0,0)}$.
+        \item Since $R_2^{(0,0)} \approx_0 T_2^{(0,0)}$, $G_0$ decides $1$ in round $2$. 
+        \item By agreement, both $G_0$ and $G_1$ decide $1$ in $R_{2}^{(0,0)}$.
+        \item By induction on steps $14-17$, we get $R_{r-1}^{(0,0)} \approx_0 T_r^{(0,0)}$ $G_0$ decides $1$ in round $r$. 
+        \item By agreement, both $G_0$ and $G_1$ decide $1$ in $R_{r}^{(0,0)}$ which contradicts very weak validity. 
+    \end{enumerate}
+    Hence the very weak coordinated attack problem is unsolvable. 
+\end{solution}
+
+\newpage
+
+\begin{problem}{2. Coordinated Attack with Somewhat Reliable Message Transmission}
+
+    In the coordinated attack problem, consider a stronger communication model (than unreliable message transmission) that makes the following guarantee:
+    \begin{tcolorbox}
+        \textbf{Somewhat Reliable Message Transmission:} 
+        
+        For each general $G_i$ ($i \in \{0, 1\}$), of the infinite set of messages $M_i = \left\{ m^r_{i \to 1-i} \mid r \in \mathbb{N} \right\}$ that general $G_i$ sends to $G_{1-i}$, some infinite subset are guaranteed to be transmitted to $G_{1-i}$.
+    \end{tcolorbox}
+    The \emph{Somewhat Reliable Coordinated Attack Problem} is to design an algorithm that, in all runs, satisfies Termination, Agreement, and Validity under somewhat reliable message transmission.
+    Is the Somewhat Reliable Coordinated Attack Problem solvable or unsolvable? If it is solvable, give a protocol. If it is unsolvable, give a rigorous proof of its unsolvability.
+\end{problem}
+
+\begin{solution}
+    \bbni
+    
+    The Coordinated Attack Problem is solvable under agreement, validity, termination and somewhat reliable message transmission. Since an infinite set is non-empty, we know that both generals receive at least one message from the other on some day, i.e., at some finite time.   
+    
+    We use the following protocol: 
+    \begin{enumerate}
+        \item Each general sends a message everyday (even after deciding) and each message from $G_i \to G_{1-i}$ contains the input of $G_i$. 
+        \item Upon receiving the first message, each general decides $1 \iff$ both generals have $1$ as input, and $0$ otherwise.
+    \end{enumerate}
+
+    \textbf{Termination:} This protocol terminates because we know that at least $1$ message is delivered to each general at some finite time, which provides them with all the information they need to make their decision. 
+
+    \textbf{Agreement:} Every message contains the input from the other general, both generals apply the same rule to the same inputs and thus decide the same value. 
+
+    \textbf{Validity:} By the protocol, if the inputs are $0,0$ they decide $0$, and if the inputs are $1,1$ they decide $1$. 
+
+\end{solution}
+
+\newpage
+
+\begin{problem}{3. Coordinated Attack with Simultaneous Termination}
+In the coordinated attack problem, consider strengthening the Termination condition to:
+\begin{tcolorbox}
+    \textbf{Simultaneous Termination:} 
+    
+    Both generals eventually decide a value from $\{0, 1\}$ and they decide on the same day.
+\end{tcolorbox}
+With Somewhat Reliable Message Transmission, is there an algorithm that satisfies Simultaneous Termination, Agreement, and one of the three validity conditions (Validity, Weak Validity, and Very Weak Validity)? Prove the strongest result(s) you can.
+
+\medskip
+\noindent\textit{Note:} The strongest conceivable positive result would be an algorithm that meets simultaneous termination, agreement, and strong validity. The strongest conceivable negative result would be a proof that there is no algorithm that meets simultaneous termination, agreement, and very weak validity.
+\end{problem}
+
+\begin{solution}
+    \bbni
+
+    We will prove the strongest negative result.
+    Suppose for contradiction that $P$ is a protocol for the coordinated attack problem that satisfies simultaneous termination, agreement, and very weak validity under somewhat reliable message transmission.
+
+    Let $G_0, G_1$ denote General $0$ and General $1$ respectively. For inputs $(i,j)$ and $x \le y$ we define the following: 
+    \begin{itemize}
+        \item $R_{x,y}^{(i,j)}$ is a run where all messages upto day $x$ are delivered, all messages from days $x+1, \ldots, y$ are dropped, and all messages sent after day $y$ are delivered.
+        \item $T_{x,y}^{(i,j)}$ is a run where all messages upto day $x-1$ are delivered, on day $x$ only the message from $G_1$ to $G_0$ is delivered, all messages from days $x+1, \ldots, y$ are dropped, and all messages sent after day $y$ are delivered.
+    \end{itemize} 
+    
+    Let $A \approx_i B$ mean that General $i$ cannot distinguish scenario $A$ from scenario $B$. Under simultaneous termination, when the input is $(1,1)$ we know there exists some day $d$ such that both generals decide $1$ on day $d$.  
+    
+
+    \begin{enumerate}
+        \item By very weak validity and simultaneous termination, we know that for some $r < d$, $R_{r,d}^{(1,1)}$ both generals decide $1$.
+        \item But $R_{r,d}^{(1,1)} \approx_0 T_{r, d}^{(1,1)}$, so in $T_{r, d}^{(1,1)}$ $G_0$ decides $1$ on day $d$. 
+        \item By simultaneous termination and agreement, $G_1$ also decides $1$ on day $d$. 
+        \item Then $T_{r,d}^{(1,1)} \approx_1 R_{r-1, d}^{(1,1)}$, so in $R_{r-1, d}^{(1,1)}$ $G_1$ decides $1$ on day $d$.
+        \item By induction on these steps 2-4, starting with $r = d$ we can see that both $G_0$ and $G_1$ decide $1$ on day $d$ in the run $R_{0,d}^{(1,1)}$. 
+        \item Then, $R_{0,d}^{(1,1)} \approx_1 R_{0, d}^{(0,1)}$, so $G_1$ decides $1$ on day $d$ in the run $R_{0,d}^{(0,1)}$. 
+        \item By simultaneous termination and agreement, $G_0$ decides $1$ on day $d$ in the run $R_{0,d}^{(0,1)}$. 
+        \item Then, $R_{0,d}^{(0,1)} \approx_0 R_{0, d}^{(0,0)}$, so $G_0$ decides $1$ on day $d$ in the run $R_{0,d}^{(0,0)}$.
+        \item By simultaneous termination and agreement, $G_1$ decides $1$ on day $d$ in the run $R_{0,d}^{(0,0)}$.
+        \item Then $R_{r-1,d}^{(0,0)} \approx_1 T_{r,d}^{(0,0)}$, so if both generals decide $1$ on day $d$ in $R_{r-1,d}^{(0,0)}$, then $G_1$ decides $1$ on day $d$ in $T_{r,d}^{(0,0)}$, and by simultaneous termination and agreement so does $G_0$.
+        \item Then $T_{r,d}^{(0,0)} \approx_0 R_{r,d}^{(0,0)}$, so $G_0$ decides $1$ on day $d$ in $R_{r,d}^{(0,0)}$, and by simultaneous termination and agreement so does $G_1$.
+        \item By induction on steps 10--11, starting from $r = 1$, both $G_0$ and $G_1$ decide $1$ on day $d$ in the run $R_{d,d}^{(0,0)}$, which contradicts very weak validity.
+    \end{enumerate}
+    Hence no protocol satisfies simultaneous termination, agreement, and weak validity with somewhat reliable message transmission.
+\end{solution}
+
+
+
+
+\end{document}

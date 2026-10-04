@@ -1,0 +1,26 @@
+\documentclass[12pt]{article}
+
+\include{../style}
+
+\begin{document}
+
+\input{title}
+
+\begin{problem}{1. $n$-Process Locks from Two-Process Locks}
+
+    Reduce $n$-process locks to two process locks. That is, let $n \geq 2$ be any fixed and known integer, and let $L_2$ be a solution to the mutual exclusion problem for two-processes, construct by reduction a lock $L_n$ that solves the mutual exclusion problem for $n$-processes. Your reduction should only use the read and write shared-memory instructions (i.e., it should not use RMW instruction) and it should satisfy the following requirements:
+    \begin{itemize}
+        \item[(LLF)] If $L_2$ satisfies Mutex and Live-Lock Freedom but not Starvation Freedom for two processes, then $L_n$ should satisfy Mutex and Live-Lock Freedom but not Starvation Freedom for $n$ processes.
+        \item[(SF)] If $L_2$ satisfies Mutex and Starvation Freedom for two processes, then $L_n$ should satisfy Mutex and Starvation Freedom for $n$ processes.
+    \end{itemize}
+    You must design the reduction and prove that it satisfies the requirements (LLF) and (SF). You may assume that $n$ is fixed and known and that the processes are named $1, 2, \ldots, n$.
+\end{problem}
+
+\begin{solution}
+    \bbni
+
+    
+\end{solution}
+
+
+\end{document}
