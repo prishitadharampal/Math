@@ -1,0 +1,92 @@
+\documentclass[12pt]{article}
+
+\include{../style}
+\usepackage{pdfpages}
+
+\begin{document}
+
+\input{title}
+
+% \begin{problem}{0. Learn TLA+ (Required)}
+
+% Follow {https://lamport.azurewebsites.net/video/videos.html} to learn TLA+ and how to use the TLC Model Checker. The video course will walk you through the use of the TLA+ toolbox. Make sure to give yourself a lot of time to go through these videos. The videos have intermittent exercises to help you learn and confirm your understanding, so you may often need to pause the video, think, go through an exercise, re-watch an earlier video, or seek help if you get stuck somewhere.
+% \end{problem}
+
+\begin{problem}{1. Model Checking Peterson's Algorithm}
+
+Specify Peterson's Algorithm in TLA+. Formulate Mutual Exclusion of Peterson's Algorithm as an invariant. Use the TLC Model Checker to prove (by exhaustive search) that Peterson's Algorithm satisfies Mutual Exclusion.
+\end{problem}
+
+\begin{solution}
+    
+\begin{tcolorbox}[
+    title={TLA+ model},
+    breakable,
+    boxsep=2pt,
+    left=2pt,
+    right=2pt
+]
+    \centering
+    \includegraphics[
+        page=1,
+        width=\linewidth,
+        height=.9\textheight,
+        keepaspectratio
+    ]{TLA/problem1.pdf}
+\end{tcolorbox}
+\end{solution}
+
+\newpage
+
+\begin{problem}{2. Puli Meka Gaddi}
+
+The following is a Telugu folk puzzle called \emph{Puli Meka Gaddi} (translating to \emph{Tiger, Goat, and Hay}).
+
+A boatman has a tiger, a goat, and a bale of hay and is on the left bank of a river. His objective is to cross from the left bank of the river to the right bank of the river and to end up on the right bank of the river with all of his three life-forms (tiger, goat, and hay). Unfortunately, his boat only has space for him and one of the three life-forms, therefore he can take at most one of the life-forms with him in the boat at a time. Thus, he must necessarily make several left-to-right and right-to-left trips across the river to achieve his goal. In addition, the boatman also faces the following conundrum, if he leaves the tiger and goat alone together (without him), the tiger will eat the goat. Similarly, if he leaves the goat and hay alone together, the goat will eat the hay. The Puli Meka Gaddi Puzzle is to find a way for the boatman to successfully end up on the right bank of the river along with the tiger, the goat, and the hay without anything getting eaten.
+
+In this problem, your objective is not just to solve the Puli Meka Gaddi puzzle, but to actually make the TLC model checker solve the puzzle for you. In particular, recall that the TLC model checker can check for invariants in TLA+ model specifications. Can you figure out how to use the TLC model checker to solve Puli Meka Gaddi for you?
+
+In particular, you should specify the Puli Meka Gaddi system as a TLA+ model and formulate an appropriate non-invariant, such that model checking your non-invariant in TLC will lead the model checker to throw an ``error'' trace that is a solution to the Puli Meka Gaddi Puzzle. Submit your pretty-printed TLA+ model and the solution returned by TLC, along with a translation of the solution returned by TLC into plain English.
+\end{problem}
+
+\begin{solution}
+\begin{tcolorbox}[
+    title={TLA+ model},
+    breakable,
+    boxsep=2pt,
+    left=2pt,
+    right=2pt
+]
+    \centering
+    \includegraphics[
+        page=1,
+        width=\linewidth,
+        height=0.9\textheight,
+        keepaspectratio
+    ]{TLA/problem3-cropped.pdf}
+\end{tcolorbox}
+\textbf{Solution returned by TLC.}
+\tcbinputlisting{
+    title={Solution returned by TLC},
+    listing file={TLA/problem3-trace.txt},
+    listing only,
+    breakable,
+    listing options={
+        language={},
+        basicstyle=\small\ttfamily,
+        columns=fullflexible,
+        keepspaces=true,
+        breaklines=true,
+        frame=none,
+        escapeinside={},
+        mathescape=false
+    }
+}
+\textbf{English explanation.}
+
+\todo{}
+
+\end{solution}
+
+
+\end{document}

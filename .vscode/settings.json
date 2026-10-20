@@ -126,5 +126,6 @@
             "env": {}
         }
     ],
-    "latex-workshop.latex.autoBuild.run": "onSave"
+    "latex-workshop.latex.autoBuild.run": "onSave",
+    "tlaplus.tlc.modelChecker.options": "-workers 1 -coverage 1"
 }

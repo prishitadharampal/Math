@@ -1,0 +1,39 @@
+State 1: Initial state
+/\ boatman = "left"
+/\ right = {}
+/\ left = {"tiger", "goat", "hay"}
+
+State 2
+/\ boatman = "right"
+/\ right = {"goat"}
+/\ left = {"tiger", "hay"}
+
+State 3
+/\ boatman = "left"
+/\ right = {"goat"}
+/\ left = {"tiger", "hay"}
+
+State 4
+/\ boatman = "right"
+/\ right = {"tiger", "goat"}
+/\ left = {"hay"}
+
+State 5
+/\ boatman = "left"
+/\ right = {"tiger"}
+/\ left = {"goat", "hay"}
+
+State 6
+/\ boatman = "right"
+/\ right = {"tiger", "hay"}
+/\ left = {"goat"}
+
+State 7
+/\ boatman = "left"
+/\ right = {"tiger", "hay"}
+/\ left = {"goat"}
+
+State 8
+/\ boatman = "right"
+/\ right = {"tiger", "goat", "hay"}
+/\ left = {}

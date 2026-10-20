@@ -13,10 +13,138 @@
     Design an $n$-process mutual exclusion lock that satisfies Mutex, Starvation Freedom, FCFS, and Bounded Exit. You may only use the read, write, and fetch-and-add shared-memory instructions in your algorithm. The algorithm must not require shared or local variables with more than $O(\log n)$ bits. You may assume that $n$ is fixed and known, and that the processes are named $1, 2, \ldots, n$.
 \end{problem}
 
+\begin{solution}
+    \bbni    
+\begin{lstlisting}[mathescape]
+Shared Variables:
+    $generation \in \{0,1\}$, initialized to $0$
+    $choosing[\pi] = False$, for all $\pi \in \Pi$
+    $tickets[\pi] = (0,0)$, for all $\pi \in \Pi$ // Each ticket is (generation, ticket number)
+Local Variables:
+    $t$, initialized arbitrarily
+Try($\pi$):
+Doorway:
+    $T_1:$ $choosing[\pi] = True$
+    $T_2:$ $tickets[\pi][0] = generation$
+    $T_3:$ $t = 0$
+    $T_4:$ for $\pi' \in \Pi$:
+          if $tickets[\pi'][0] = tickets[\pi][0]$: 
+            $t = \max(t, tickets[\pi'][1])$
+    $T_5:$ $tickets[\pi][1] = t + 1$
+    $T_6:$ $choosing[\pi] = False$
+
+Waiting Room:
+    $T_7:$ for $\pi' \in \Pi$, $\pi' \neq \pi$:
+          await not $choosing[\pi']$
+          if $tickets[\pi'][0] = tickets[\pi][0]$:
+              await ($tickets[\pi'][1] = = 0$ 
+              or $(tickets[\pi][1], \pi) < (tickets[\pi'][1], \pi')$ 
+              or $tickets[\pi'][0] \neq tickets[\pi][0]$)
+          else:
+              await ($tickets[\pi'][1] == 0$
+              or $tickets[\pi][0] \neq generation$
+              or $tickets[\pi'][0] = = tickets[\pi][0]$)
+
+Exit($\pi$):
+    $E_1:$ $generation = 1 - tickets[\pi][0]$
+    $E_2:$ $tickets[\pi][1] = 0$
+\end{lstlisting}
+
+We will now prove that the algorithm satisfies Mutex, Starvation Freedom, Live-Lock Freedom, FCFS, Bounded Exit, and only takes $O(\log n)$ space. 
+
+Note that at most $n$ processes share the same generation at a given time.
+Let the shared generation be $g$. Any process waiting with a ticket from generation \(1-g\) has priority over processes holding generation-\(g\) tickets. In particular, after a process with generation \(1-g\) exits, it sets the shared generation to \(g\), preserving the priority of other outstanding generation-\((1-g)\) tickets. The shared generation cannot switch back while those earlier tickets are still waiting.
+\begin{itemize}
+    \item \textbf{Mutex:} Suppose for contradiction that two processes $\pi, \pi' \in \Pi$ are in CS at the same time. There are two cases: 
+    \begin{enumerate}
+        \item \textbf{Same Generation:} Note that ticket numbers are assigned in a non decreasing order in the same generation, and we break ties by minimality of ticket number and process id. WLOG assume that $\pi$ has the smaller pair. Then by $T_7$, $\pi'$ must wait for $\pi$ to start the Exit section before entering the CS since $\pi$'s ticket remains nonzero until it exits, and since the choosing array ensures that $\pi'$ waits until $\pi$ assigns its ticket, both processes cannot simultaneously be in the CS.
+        \item \textbf{Different Generation:} If $\pi$ and $\pi'$ have different generation, by the generation ordering property, tickets from the previous generation have priority over tickets from the current generation, thus the process with the new generation must wait until the processes with the previous generation has exited the CS.
+    \end{enumerate}
+    Thus at most one process is in the CS at any time. 
+
+    \item \textbf{Bounded Exit:} The Exit section consists of two writes and hence can be completed in a bounded number of steps of the process.
+    
+    \item \textbf{FCFS:} Suppose $\pi$ finishes its doorway before $\pi'$ starts, then:
+    \begin{enumerate}
+        \item $\pi$ has already entered CS and FCFS is satisfied. 
+        \item they are in the same generation, then since \(\pi\) has already published its ticket, \(\pi'\) accounts for its ticket when computing the maximum, and thus, \(tickets{[\pi']}[1]> tickets[\pi][1]\), so \(\pi'\) waits for \(\pi\) to reset its ticket to $0$ which happens only when $\pi$ exits.
+        \item they are in different generations, then if $\pi'$ receives the opposite generation, then by the generation ordering property the outstanding tickets from $\pi$'s generation get priority. And thus, \(\pi'\) must wait till all processes from that generation (including $\pi$) are done. 
+    \end{enumerate}
+    In both cases, \(\pi'\) cannot enter the CS before \(\pi\). Therefore, the algorithm satisfies FCFS.
+
+
+    \item \textbf{Live-Lock Freedom:} Suppose at least one process is in the Try Section waiting to enter the CS. In a fair run, all processes currently in their doorways eventually finish, since the doorway requires only \(O(n)\) steps. Any processes in CS or the Exit Section finish and exit. Since no new process enters the CS the shared generation variable eventually stops changing. 
+    
+    Then of the waiting processes we can pick the one with the highest priority first by generation and then by ticket number and process ID. This process has no higher-priority process to wait for, so it eventually completes its waiting room and enters the CS, contradicting our assumption.
+    Thus the algorithm satisfies Live-Lock Freedom. 
+
+    \item \textbf{Starvation Freedom:} Since the algorithm satisfies Live-Lock Freedom, Mutex and FCFS, it also satisfies Starvation Freedom.
+    
+    \item \textbf{$O(\log n)$ Space:} 
+    \begin{enumerate}
+        \item The shared generation variable has values in $\{0, 1\}$ and needs only $1$ bit. 
+        \item Each entry in the choosing array is boolean and thus also requires $1$ bit. 
+        \item Each entry in the tickets array consists of a (generation, ticket number) tuple, where the ticket number is bounded by $n$. Note that process ids are also bounded by $n$. Thus both ticket numbers and process ids require at most $O(\log n)$ bits. 
+    \end{enumerate}
+    Thus all shared and local variables take at most $O(\log n)$ bits, and the total shared space is $O(n \log n)$ bits. 
+\end{itemize}
+
+\end{solution}
+
+\newpage
+
 \begin{problem}{2. FCFS from Starvation Freedom }
         
     Reduce $n$-process FCFS Mutex to $n$-process Starvation Free Mutex. That is, let $n \geq 2$ be any fixed and known integer, and let $L$ be a solution to the mutual exclusion problem that satisfies Mutex and Starvation Freedom, construct by reduction a lock $L'$ for $n$ processors that satisfies Mutex, Starvation Freedom, and First-Come-First-Served (FCFS). Your reduction should only use the read and write shared-memory instructions (i.e., it should not use RMW instructions). You may assume that $n$ is known and that the processes have names in the set $\{1, 2, \ldots, n\}$.
 \end{problem}
+
+\begin{solution}
+    \bbni
+
+    Let $L$ be a solution to the mutual exclusion problem that satisfies Mutex and Starvation Freedom for $n$ processes. Note that then by definition, in a fair run, we are guaranteed that every process that tries to enter CS will eventually enter it. We will construct $L'$ by reduction as follows: 
+    \begin{lstlisting}[mathescape]
+$L'$: 
+Shared Variables: 
+    $tickets[]$: initialized to $tickets[\pi] = 0, \forall \pi \in \Pi$ 
+Local Variables: 
+    $current$: initialized arbitrarily
+    $t$: initialized to $0$
+
+Try($\pi$): 
+Doorway: 
+$T_1:$ $t = 0$
+$T_2:$ for $\pi' \in \Pi$: 
+        $t = \max(tickets[\pi'], t)$
+$T_3:$ $tickets[\pi] = t + 1$
+Waiting Room: 
+$T_4:$ $current = (tickets[\pi], \pi)$
+$T_5:$ for $\pi' \in \Pi$:
+        if $\pi' != \pi$ and $tickets[\pi'] != 0$ and $(tickets[\pi'], \pi') < current$:
+            $current = (tickets[\pi'], \pi')$
+$T_6:$ if $current != (tickets[\pi], \pi)$: 
+        go to $T_4$
+    else: 
+        L.Try($\pi$)
+
+Exit($\pi$): 
+$E_1:$ L.Exit($\pi$)
+$E_2:$ $tickets[\pi] = 0$ 
+    \end{lstlisting}
+
+    Note that we break ticket ties by process ids. We will now prove that $L'$ satisfies Mutex, Starvation Freedom, and FCFS. 
+    \begin{itemize}
+        \item  \textbf{Mutex:} Every process must get the \(L\) Lock before entering the CS. Since \(L\) satisfies Mutex, so does \(L'\).
+        \item  \textbf{FCFS:} Suppose \(\pi\) completes its doorway before \(\pi'\) starts. If \(\pi\) hasn't finished its passage, then \(t_\pi<t_{\pi'}\). Therefore, \(\pi'\) cannot pass T6 until \(\pi\) resets its ticket to 0, which happens after \(\pi\) exits the CS. If their doorways overlap, FCFS imposes no restriction on their relative order of accessing the CS. 
+        \item \textbf{Starvation Freedom:} Once \(\pi\) obtains a ticket, no process beginning its doorway afterward can obtain a smaller ticket while \(\pi\) is waiting. At most \(n-1\) existing attempts can have priority over \(\pi\). 
+        
+        Consider the process with the smallest (ticket, process id) pair among these attempts. In a fair run, it eventually completes its waiting room and enters \(L.Try()\). By the Starvation Freedom of \(L\), it eventually enters and leaves the CS, resetting its ticket to 0. Repeating this argument, all processes with a smaller (ticket, process id) pair than $\pi$ eventually finish. Thus, \(\pi\) eventually enters \(L.Try()\), and by the Starvation Freedom of \(L\), eventually enters the CS.
+
+        Also note that the doorway ($T_1-T_3$) can be completed in a bounded number of the process' steps and hence Starvation Freedom is satisfied.  
+    \end{itemize}
+    
+\end{solution}
+
+\newpage
 
 \begin{problem}{3. $O(1)$ DSM RMR Mutex with Fetch-and-Add (Optional)}
         
@@ -24,8 +152,6 @@
 
     Design an $n$-process mutual exclusion lock that satisfies Mutex, Starvation Freedom, FCFS, and Bounded Exit. You may only use the read, write, and fetch-and-add shared-memory instructions in your algorithm. Your algorithm must have $O(1)$ RMR Complexity on both DSM and CC machines. You may assume that $n$ is fixed and known.
 \end{problem}
-
-
 
 
 \end{document}
