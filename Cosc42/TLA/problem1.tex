@@ -2,13 +2,8 @@
 \documentclass{article}
 \usepackage{color}
 \definecolor{boxshade}{gray}{0.85}
-\usepackage[
-    textwidth=360pt,
-    textheight=700pt,
-    centering
-]{geometry}
-
-\pagestyle{empty}
+\setlength{\textwidth}{360pt}
+\setlength{\textheight}{541pt}
 \usepackage{latexsym}
 \usepackage{ifthen}
 % \usepackage{color}
@@ -942,6 +937,7 @@
 % last modified on Fri  3 August 2012 at 14:23:49 PST by lamport
 
 \begin{document}
+\pagestyle{empty}
 \tlatex
 \setboolean{shading}{true}
 \@x{}\moduleLeftDash\@xx{ {\MODULE} problem1}\moduleRightDash\@xx{}%
@@ -979,6 +975,7 @@
 \@x{\@s{23.11} \.{\land} turn \.{'} \.{=} 1 \.{-} p}%
 \@x{\@s{23.11} \.{\land} {\UNCHANGED} interested}%
 \@pvspace{8.0pt}%
+\newpage
 \@x{ T3A ( p ) \.{\defeq}}%
 \@x{\@s{24.80} \.{\land} pc [ p ] \.{=}\@w{T3A}}%
 \@x{\@s{24.80} \.{\land} pc \.{'} \.{=} [ pc {\EXCEPT} {\bang} [ p ] \.{=}}%

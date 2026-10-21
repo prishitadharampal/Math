@@ -2,6 +2,7 @@
 
 \include{../style}
 \usepackage{pdfpages}
+\usepackage{needspace}
 
 \begin{document}
 
@@ -18,22 +19,40 @@ Specify Peterson's Algorithm in TLA+. Formulate Mutual Exclusion of Peterson's A
 \end{problem}
 
 \begin{solution}
+    \bbni
     
-\begin{tcolorbox}[
-    title={TLA+ model},
-    breakable,
-    boxsep=2pt,
-    left=2pt,
-    right=2pt
-]
-    \centering
-    \includegraphics[
-        page=1,
-        width=\linewidth,
-        height=.9\textheight,
-        keepaspectratio
-    ]{TLA/problem1.pdf}
+    TLC exhaustively found all 66 (32 distinct) reachable states and found no violation of Mutex. Thus, the model satisfies mutual exclusion.
+
+  \begin{tcolorbox}[title={TLA+ model},boxsep=0pt,
+    left=3pt,right=3pt,top=3pt,bottom=3pt]
+\centering
+\includegraphics[page=1,width=0.9\linewidth]
+    {TLA/problem1-cropped.pdf}\par
 \end{tcolorbox}
+
+\begin{tcolorbox}[title={TLA+ model continued},boxsep=0pt,
+    left=3pt,right=3pt,top=3pt,bottom=3pt]
+\centering
+\includegraphics[page=2,width=0.9\linewidth]
+    {TLA/problem1-cropped.pdf}\par
+\end{tcolorbox}
+
+\tcbinputlisting{
+    title={TLC configuration},
+    listing file={TLA/problem1.cfg},
+    listing only,
+    breakable,
+    listing options={
+        language={},
+        basicstyle=\small\ttfamily,
+        columns=fullflexible,
+        keepspaces=true,
+        breaklines=true,
+        frame=none,
+        escapeinside={},
+        mathescape=false
+    }
+}
 \end{solution}
 
 \newpage
@@ -65,7 +84,25 @@ In particular, you should specify the Puli Meka Gaddi system as a TLA+ model and
         keepaspectratio
     ]{TLA/problem3-cropped.pdf}
 \end{tcolorbox}
-\textbf{Solution returned by TLC.}
+\tcbinputlisting{
+    title={TLC configuration},
+    listing file={TLA/problem3.cfg},
+    listing only,
+    breakable,
+    listing options={
+        language={},
+        basicstyle=\small\ttfamily,
+        columns=fullflexible,
+        keepspaces=true,
+        breaklines=true,
+        frame=none,
+        escapeinside={},
+        mathescape=false
+    }
+}
+\bbni
+
+\textbf{Solution returned by TLC:}
 \tcbinputlisting{
     title={Solution returned by TLC},
     listing file={TLA/problem3-trace.txt},
@@ -82,10 +119,19 @@ In particular, you should specify the Puli Meka Gaddi system as a TLA+ model and
         mathescape=false
     }
 }
-\textbf{English explanation.}
+\bbni
 
-\todo{}
+\textbf{English explanation:}
 
+We can solve the puzzle by following the following steps: 
+\begin{itemize}
+    \item Step 0: They all start on the left bank of the river. 
+    \item Step 1: The boatman crosses to the right bank with the goat, drops it there and goes back to the left bank. 
+    \item Step 2: The boatman crosses to the right bank with the tiger, drops it there, and brings the goat back to the left bank.  
+    \item Step 3: The boatman crosses to the right bank with the hay, drops it there, and goes back to the left bank.  
+    \item Step 4: The boatman crosses to the right bank with the goat.
+\end{itemize} 
+Thus successfully ending up on the right bank of the river along with the tiger, the goat, and the hay without anything getting eaten.
 \end{solution}
 
 
