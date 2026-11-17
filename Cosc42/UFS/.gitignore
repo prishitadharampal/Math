@@ -1,0 +1,8 @@
+.tlacache/
+*.aux
+*.log
+*.out
+*.synctex.gz
+*.fdb_latexmk
+*.fls
+.DS_Store
