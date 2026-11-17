@@ -1,0 +1,416 @@
+\documentclass[12pt]{amsproc}
+\usepackage{pgfplots}
+
+\include{style}
+
+\AtBeginEnvironment{proof}{%
+  \setlength{\parindent}{0pt}%
+  \setlength{\listparindent}{0pt}%
+  \setlength{\normalparindent}{0pt}}
+
+\begin{document}
+
+\title{Machine Verifying Linearizability of Union-Find-SameSet}
+
+\author{Prishita Dharampal}
+\date{}
+\maketitle
+\vspace{-0.3in}
+
+\newcommand{\partition}{\mathit{part}}
+\newcommand{\Find}{\texttt{Find}}
+\newcommand{\Unite}{\texttt{Unite}}
+\newcommand{\SameSet}{\texttt{SameSet}}
+\newcommand{\False}{\texttt{False{}}}
+\newcommand{\True}{\texttt{True{}}}
+
+
+\section{Concurrent UFS}
+
+Concurrent Union-Find-SameSet (UFS) extends the Concurrent Union-Find algorithm to support the SameSet operation. The implementation builds on top of a shared Union-Find object, whose state is an idempotent function $\partition$, where $\partition(c)$ returns the representative of the block containing $c$. Every representative represents itself, so we have
+\[\partition(\partition(c)) = \partition(c)\]
+
+An atomic UF \Find{} operation on $c$ reads $\partition(c)$, and an atomic UF \Unite{} operation on $c, d$ updates $\partition$ by merging the blocks $c$ and $d$ originally belonged to, choosing one of the old representatives as the new representative, and returns \texttt{ACK}. A \SameSet{} operation called on $c$ and $d$ checks if $\partition(c) = \partition(d)$ in the current state. The complete concurrent UFS algorithm is as follows: 
+\begin{lstlisting}[mathescape]
+Processes: $\Pi = \{p_1,\ldots,p_n\}$
+Nodes: $N = \{1,\ldots,m\}$
+Shared variable: 
+ $\partition \colon N \to N$ initialized such that $\partition(c) = c$ $\forall c \in N$
+Find$_p$(c):
+    F1:  ret = part(c)
+    FR:  return ret
+
+Unite$_p$(c, d):
+    U1:  ret = Unite(c, d)
+    UR:  return ret
+
+SameSet$_p$(c, d):
+    S1:  u = c;  v = d;  u = Find(u)
+    S2:  v = Find(v)
+         if u = v then ret = True;  goto SR
+    S3:  w = Find(u)
+         if u = w then ret = False; goto SR
+         else goto S1
+    SR:  return ret
+\end{lstlisting}
+To show that the algorithm is linearizable we need to show that each operation in every possible complete history can be thought of taking place atomically at some point between its invocation and completion. This algorithm is future dependent because the moment at which \SameSet{} decides if \texttt{S2} can serve as the linearization point depends on what \texttt{S3} observes. For instance, consider the following sequence of events: 
+
+Let $m = 2$. Process $p$ runs $\SameSet{}(1,2)$ and process $q$ runs $\Unite{}(2,1)$.
+\begin{enumerate}
+    \item $p$ executes \texttt{S1}: $u = \partition(1) = 1$, $v = 2$.
+    \item $p$ executes \texttt{S2}: $v = \partition(2) = 2 \neq u$, so $p$ moves to \texttt{S3}.
+    \item $q$ executes \texttt{U1}, and suppose it redirects the block of $2$ to $1$: $\partition = (1 \mapsto 1, \; 2 \mapsto 1)$.
+    \item $p$ executes \texttt{S3}: $w = \partition(1) = 1 = u$, so $p$ returns $\False{}$.
+\end{enumerate}
+At the moment $p$ decides (step 4), $1$ and $2$ are in the same block, so $\False{}$ cannot take effect there. So \SameSet{} must be linearized before \Unite{}, and \texttt{S2} is a valid linearization point. However, at step 2 we did not yet know that $p$ would return $\False{}$: had $q$ instead redirected the block of $1$ to $2$, then $u = 1$ would no longer be a root at step 4, $p$ would retry, and $p$ would eventually return $\True{}$. So whether $p$ `took effect at step 2' depends on the future.
+
+\newpage 
+
+\section{Proof Structure}
+
+
+Let $\mathsf{Spec}$ denote the original Concurrent UFS specification. We augment it with an auxiliary variable $P$ to obtain $\mathsf{ASpec}$. Initially, $P$ contains a single configuration representing the initial partition with all processes idle. Each step of $\mathsf{ASpec}$ takes the corresponding step of $\mathsf{Spec}$ and updates $P$ using $\mathrm{Invoke}$, $\mathrm{Evolve}$, and $\mathrm{Filter}$, so that $P$ contains every configuration consistent with the history so far.
+
+
+Each element of $P$ records the abstract state and the status of the calls currently in progress for a possible sequential explanation of the history so far. We prove by induction over the steps of $\mathsf{ASpec}$ that $P$ stays nonempty. This gives a legal sequential explanation for every finite history of the implementation.
+
+For the current state, we define a set $Q$ of plausible configurations. We will prove that $Q$ is always nonempty and that $Q \subseteq P$, which implies that $P$ is non-empty. The proof structure is as follows: 
+
+\[
+\begin{tikzcd}[column sep=small, row sep=large]
+    & \text{Concurrent UFS is linearizable} & \\
+    & \mathsf{ASpec} \Rightarrow \Box(P \ne \varnothing)
+        \arrow[u] & \\
+    & \mathsf{ASpec} \Rightarrow
+        \Box(Q \ne \varnothing \land Q \subseteq P)
+        \arrow[u] & \\
+    \mathsf{ASpec} \Rightarrow \Box(Q \ne \varnothing)
+        \arrow[ur]
+    &&
+    \mathsf{ASpec} \Rightarrow \Box(Q \subseteq P)
+        \arrow[ul] \\
+    \text{Construct an element in } Q
+        \arrow[u]
+    &&
+    \substack{Q=P \text{ initially}\\
+          \text{Each step preserves } Q\subseteq P}
+    \arrow[u]
+\end{tikzcd}
+\]
+
+\newpage 
+
+\section{Proof}
+
+\subsection{Meta-Configuration Tracking}
+
+\bbni
+
+A configuration $c \in P$ consists of an abstract map $c.\mathrm{state}$ that maps each element to its representative and, for each process $p$, an operation $c.\mathrm{op}[p]$, an argument $c.\mathrm{arg}[p]$, and a result $c.\mathrm{res}[p]$. If a value is not yet recorded it is represented by $\bot$.  The relation $\Delta(c,p,d)$ describes one pending call taking effect. If \(c.\mathrm{res}[p]=\bot\), we apply \(p\)’s operation to \(c.\mathrm{state}\), storing the resulting map in \(d.\mathrm{state}\) and the result in \(d.\mathrm{res}[p]\). Note that the operation and argument entries and the other processes' results stay unchanged.
+
+
+We define the following four operations on sets of configurations.
+\begin{itemize}
+    \item $\mathrm{Invoke}(P,p,op,a)$ records operation $op$ with argument $a$ for an idle process $p$, with its result still $\bot$, and returns the updated set $P'$.
+    \item $\mathrm{Evolve}(P)$ collects the configurations reachable from $P$ by a finite sequence of $\Delta$ steps. Note that the sequence may be empty, and returns the updated set $P'$. 
+    \item $\mathrm{Filter}(P,p,r)$ keeps configurations in which $p$'s recorded result is $r$ and updates $p$'s entries to $\bot$, and returns the updated set $P'$. 
+    \item Stuttering does nothing and returns the set $P$ as is. 
+\end{itemize}
+
+Then each step in an operation is applied to $P$ as follows: 
+\[
+\begin{array}{ll}
+\text{Invocation} & P'=\mathrm{Evolve}(\mathrm{Invoke}(P,p,op,a))\\
+\text{Intermediate step} & P'=\mathrm{Evolve}(P)\\
+\text{Return} & P'=\mathrm{Filter}(\mathrm{Evolve}(P),p,r)\\
+\text{Stuttering} & P'=P.
+\end{array}
+\]
+
+Every configuration in $P$ comes from a legal sequential order of the history so far. Initially, no operations have been called, so $c.\mathrm{state} = \partition = \id$, where $\id$ is the identity map. $\mathrm{Invoke}$ records the new call as pending. Each step of $\mathrm{Evolve}$ appends a pending call to the order and applies the sequential UFS rule. This respects the precedence because every call that returned
+before the appended call was invoked is already in the order. When a call returns, $\mathrm{Filter}$ keeps only candidates that include that call with its observed result. Thus every surviving candidate includes all completed calls with their observed results.
+
+So it only remains to show that at least one valid configuration is present in $P$ after every step in the execution. We will do this by showing that $Q$ is always nonempty and $Q\subseteq P$.
+
+
+
+\subsection{Constructing \(Q\)}
+
+\bbni 
+
+We want $Q$ to contain only the configurations that represent the current execution history. For instance, consider $N = \{1, 2\}$, where $\partition(1) = 1$ and $\partition(2) = 2$ and suppose the process $\pi$ invoked $\Unite{}(1,2)$. Immediately after its invocation, the actual partition still has two blocks, and the set $P$ contains a configuration in which the call is pending and two configurations in which it has taken effect, one for each choice of representative. For $Q$, we only want to keep the pending configuration, which agrees with both the actual partition and $\mathrm{pc}[\pi] = \texttt{U1}$.
+
+Let $\mathrm{ret}[\pi]$ be our implementation's result register for process $\pi$. At a return line, it holds the value that $\pi$ is about to return. Let $\mathcal{C}$ be the set of all well-typed configurations, and let $\mathrm{PCtoOp}$ map each program counter to its corresponding operation, with $\mathrm{PCtoOp}(\texttt{RM})=\bot$. We define $Q$ as follows: 
+\[
+Q =
+\left\{
+c\in\mathcal{C}
+\;\middle|\;
+c.\mathrm{state}=\partition
+\text{ and the following hold for every }\pi\in\Pi
+\right\},
+\]
+\begin{align*}
+c.\mathrm{op}[\pi]
+    &= \mathrm{PCtoOp}(\mathrm{pc}[\pi]), \\
+c.\mathrm{arg}[\pi]
+    &= \begin{cases}
+        \bot, & \text{if }\mathrm{pc}[\pi]=\texttt{RM}, \\
+        \mathrm{arg}[\pi], & \text{otherwise},
+       \end{cases} \\
+c.\mathrm{res}[\pi]
+    &\in \begin{cases}
+        \{\mathrm{ret}[\pi]\},
+            & \text{if }\mathrm{pc}[\pi]\in
+                \{\texttt{FR},\texttt{UR},\texttt{SR}\}, \\
+        \{\bot,\False{}\},
+            & \text{if }\mathrm{pc}[\pi]=\texttt{S3}
+                \text{ and }\partition(u[\pi])=u[\pi], \\
+        \{\bot\},
+            & \text{otherwise}.
+       \end{cases}
+\end{align*}
+
+Note that: 
+\begin{itemize}
+    \item At each return line, the implementation has already determined the result, so we want the abstract result to agree with it.
+    \item At \texttt{S3}, we allow both a pending result $c.\mathrm{res}[\pi]=\bot$, because the call may retry if $u[\pi]$ ceases to be a root, and the result \False{} from the preceding \texttt{S2}, if $u[\pi]$ is still a root.
+\end{itemize}
+
+
+
+\subsection{Invariants}
+
+Showing that $Q \neq \emptyset$ and $Q \subseteq P$ relies on two invariants of the algorithm ($\mathsf{Spec}$): \texttt{TypeOK} and \texttt{Inv}, where \texttt{Inv} states that during a call $\SameSet{}(a,b)$, $u[\pi]$ stays in the same block as $a$ and $v[\pi]$ stays in the same block as $b$.
+\begin{enumerate}
+    \item \texttt{TypeOK}
+    \bbni
+    Let $N$ be the set of nodes and $\pi \in \Pi$ be a process. We show that our implementation's variables are always well-typed, i.e.,
+    \begin{itemize}
+        \item $\mathrm{pc}[\pi]\in \{\texttt{RM}, \texttt{F1}, \texttt{FR}, \texttt{U1}, \texttt{UR}, \texttt{S1}, \texttt{S2}, \texttt{S3}, \texttt{SR}\}$.
+
+        Hence $\mathrm{PCtoOp}(\mathrm{pc}[\pi])$, the operation $\pi$ is currently executing, is one of \Find{}, \Unite{}, \SameSet{}, or $\bot$ if $\pi$ is idle.
+
+        \item $\mathrm{arg}[\pi]\in N\cup(N\times N)\cup\{\bot\}$.
+        
+        During a $\Find{}$ call, $\mathrm{arg}[\pi]\in N$, and during a $\Unite{}$ or $\SameSet{}$ call, $\mathrm{arg}[\pi]\in N\times N$.
+
+        \item $\mathrm{ret}[\pi]\in N\cup\{\True{},\False{},\texttt{ACK}\}$.
+
+        \item $u[\pi],v[\pi],w[\pi]\in N$.
+    \end{itemize}
+    The shared variable $\partition$ is a function $N\to N$ satisfying $\partition(\partition(x))=\partition(x)$ for every $x\in N$.
+
+    \begin{proof}
+
+    \bbni 
+    
+    We prove \texttt{TypeOK} by induction on the number of steps.
+    \bbni
+    \textbf{Base case.}
+
+    Initially, $\partition$ is the identity map on $N$, so it is idempotent. The registers $u[\pi]$, $v[\pi]$, $w[\pi]$, $\mathrm{arg}[\pi]$, and $\mathrm{ret}[\pi]$ are initialized in their respective domains for every $\pi\in\Pi$. Since $\mathrm{pc}[\pi]=\texttt{RM}$ for every $\pi\in\Pi$, the argument-type conditions for active calls hold vacuously.
+
+    \textbf{Inductive step.}
+    Assume $\mathsf{TypeOK}$ holds before the step $T$. If $T$ is a stuttering step, the state is unchanged, and we are done. Otherwise, let $\pi$ be the process taking the step. The registers and program counters of all processes $\pi' \in \Pi, \pi' \ne\pi$ are unchanged. Only \texttt{U1} can change $\partition$, and only an invocation can change the saved argument. We check the remaining conditions for each case.
+
+    \begin{itemize}
+        \item \textbf{Invocation:}
+        A \Find{} invocation stores an argument in $N$ and sets $\mathrm{pc}[\pi]$ to \texttt{F1}. A \Unite{} or \SameSet{} invocation stores an argument in $N\times N$ and sets $\mathrm{pc}[\pi]$ to \texttt{U1} or \texttt{S1}, respectively. Thus the new argument has the required type. 
+
+        \item \textbf{\texttt{U1}:}
+        The inductive hypothesis gives $\mathrm{arg}[\pi]\in N\times N$. If the two nodes are in distinct blocks, the union maps all the nodes of the merged block to the retained representative, which maps to itself. The other blocks keep their representatives. If the nodes are already in the same block, the map is unchanged. Hence the updated map is an idempotent function from $N$ to $N$. The step stores $\texttt{ACK}$ in $\mathrm{ret}[\pi]$ and moves to \texttt{UR}.
+
+        \item \textbf{\texttt{F1}:}
+        Since $\mathrm{arg}[\pi]\in N$ and $\partition\colon N\to N$, the value $\partition(\mathrm{arg}[\pi])$ stored in $\mathrm{ret}[\pi]$ is a node. The step moves to \texttt{FR}.
+
+        \item \textbf{\texttt{S1}:}
+        Write $\mathrm{arg}[\pi]=(a,b)\in N\times N$. The step stores $\partition(a)\in N$ in $u[\pi]$ and $b\in N$ in $v[\pi]$. It moves to \texttt{S2}. 
+
+        \item \textbf{\texttt{S2}:}
+        The step replaces $v[\pi]$ with $\partition(v[\pi])\in N$. It either stores \True{} in $\mathrm{ret}[\pi]$ and moves to \texttt{SR}, or leaves the result register unchanged and moves to \texttt{S3}. 
+
+        \item \textbf{\texttt{S3}:}
+        The step stores $\partition(u[\pi])\in N$ in $w[\pi]$. It either stores \False{} in $\mathrm{ret}[\pi]$ and moves to \texttt{SR}, or leaves the result register unchanged and moves to \texttt{S1}. 
+
+        \item \textbf{Return:}
+        From \texttt{FR}, \texttt{UR}, or \texttt{SR}, the step sets $\mathrm{pc}[\pi]$ to \texttt{RM}. The registers retain their types, and the argument-type conditions for active calls hold vacuously at \texttt{RM}.
+    \end{itemize}
+
+    Thus every step preserves $\mathsf{TypeOK}$. 
+    \end{proof}
+    
+
+    \item \texttt{Inv}
+\bbni 
+Let $\pi\in\Pi$ be a process executing $\SameSet{}(a,b)$, with
+$\mathrm{arg}[\pi]=(a,b)$. If
+$\mathrm{pc}[\pi]\in\{\texttt{S2},\texttt{S3},\texttt{SR}\}$, then
+\[
+    \partition(u[\pi])=\partition(a)
+    \qquad\text{and}\qquad
+    \partition(v[\pi])=\partition(b).
+\]
+That is, $u[\pi]$ is in the same block as $a$, and $v[\pi]$ is in
+the same block as $b$.
+
+\begin{proof}
+We prove \texttt{Inv} by induction on the number of steps.
+
+\textbf{Base case.}
+Initially, $\mathrm{pc}[\pi]=\texttt{RM}$ for every $\pi\in\Pi$, so the invariant holds vacuously.
+
+\textbf{Inductive step.}
+Assume \texttt{Inv} holds before step $T$. If $T$ is a stuttering step, the invariant holds in the resulting state. Otherwise, let $\pi$ be the process taking the step.
+
+\begin{itemize}
+
+    \item \textbf{Invocation, \texttt{F1}, and return.}
+    The resulting program counter of $\pi$ lies outside $\{\texttt{S2},\texttt{S3},\texttt{SR}\}$, so the invariant holds vacuously for $\pi$.
+
+    \item \textbf{\texttt{U1}: }
+    If the union merges two distinct blocks with representatives $r$ and $s$. Let $s$ the representative that is retained. Define $h\colon N\to N$ by $h(r)=s$ and $h(x)=x$ for $x\ne r$. The updated partition is $\partition'=h\circ\partition$. 
+    
+    Thus any two nodes with equal representatives before the union still have equal representatives afterward. If the two nodes are already in the same block, the partition is unchanged.
+    
+
+    \item \textbf{\texttt{S1}:}
+    The step sets $u[\pi]=\partition(a)$ and $v[\pi]=b$, then moves to \texttt{S2}. By idempotence, the new value of $u[\pi]$ satisfies $\partition(u[\pi])=\partition(\partition(a)) =\partition(a)$. The new value of $v[\pi]$ satisfies $\partition(v[\pi])=\partition(b)$ directly. 
+
+    \item \textbf{\texttt{S2}.}
+    The step sets $v'[\pi]=\partition(v[\pi])$. By idempotence and the inductive hypothesis, $\partition(v'[\pi])=\partition(\partition(v[\pi]))=\partition(v[\pi])=\partition(b)$. Since $u[\pi]$ and $\partition$ are unchanged, the equality for $u[\pi]$ carries over.
+
+    \item \textbf{\texttt{S3}.}
+    If the step moves to \texttt{SR}, the two equalities carry over because $\partition$, $u[\pi]$, and $v[\pi]$ have the same values before and after the step. If the step retries at \texttt{S1}, the invariant holds vacuously for $\pi$.
+
+\end{itemize}
+
+    Note that in every case other than \texttt{U1}, the step preserves $\partition$ and the local state of all processes $\pi'\ne\pi$. Their equalities therefore follow from the inductive hypothesis. Thus every step satisfies \texttt{Inv}.
+
+\end{proof}
+\end{enumerate}
+
+\subsection{Nonemptiness and preservation}
+\bbni
+
+\begin{enumerate}
+    \item \textbf{$Q$ is nonempty.}
+
+    We will show that in every reachable state, $Q$ contains at least one configuration.
+
+    \begin{proof}
+    By \texttt{TypeOK}, we know that every reachable state is well-typed. We will construct a configuration $c$ in which no pending call has taken effect yet. Set $c.\mathrm{state}=\partition$, and for each $\pi\in\Pi$, set
+    \[
+        c.\mathrm{op}[\pi]=\mathrm{PCtoOp}(\mathrm{pc}[\pi]).
+    \]
+    If $\pi$ is idle, set $c.\mathrm{arg}[\pi]=\bot$. Otherwise, set $c.\mathrm{arg}[\pi]=\mathrm{arg}[\pi]$. Finally, set
+    \[
+        c.\mathrm{res}[\pi]=
+        \begin{cases}
+            \mathrm{ret}[\pi],
+                & \text{if } \mathrm{pc}[\pi]\in
+                    \{\texttt{FR},\texttt{UR},\texttt{SR}\},\\
+            \bot, & \text{otherwise}.
+        \end{cases}
+    \]
+    By \texttt{TypeOK}, $\partition$ is idempotent and every entry of $c$ lies in its domain, so $c\in\mathcal{C}$, the set of all possible configurations. Note that $\bot$ is an allowed result at every line other than a return line, including \texttt{S3}. Thus $c$ satisfies all the conditions defining $Q$, and $c\in Q$.
+    \end{proof}
+
+    \item \textbf{$Q\subseteq P$.}
+
+    \begin{proof}
+    We prove $Q\subseteq P$ by induction on the number of steps.
+
+    \textbf{Base case.}
+    Initially, $\partition$ is the identity map and $\mathrm{pc}[\pi]=\texttt{RM}$ for every $\pi\in\Pi$. So the definition of $Q$ forces 
+    \[c.\mathrm{state}= \partition =\id\]
+    and 
+    \[\forall \pi \in \Pi, c.\mathrm{op}[\pi]=c.\mathrm{arg}[\pi]=c.\mathrm{res}[\pi]=\bot\]
+    
+    This is exactly the initial configuration, $c_0$, which is well-typed, so $Q=\{c_0\}$. Since $P$ is initialized to $\{c_0\}$, we have $Q=P$.
+
+    \textbf{Inductive step.}
+    Assume $Q\subseteq P$ before step $T$. By the invariants above, \texttt{TypeOK} and \texttt{Inv} hold both before and after $T$, so every configuration we construct below is well-typed. Write $Q'$ and $P'$ for the corresponding sets after the step $T$, and let $U_T(X)$ be the result of applying the update for $T$ to a set $X$, i.e. $P'=U_T(P)$.
+
+    Note that if $A\subseteq B$, every configuration produced by the update from $A$ can also be produced from $B$, since the starting configuration belongs to both sets. Thus $U_T(A)\subseteq U_T(B)$. So it suffices to prove $Q'\subseteq U_T(Q)$, since then
+    \[
+        Q'\subseteq U_T(Q)\subseteq U_T(P)=P'.
+    \]
+
+    Fix $c\in Q'$. We construct a configuration $d\in Q$ from which the update for step $T$ produces $c$. If $T$ is a stuttering step, the state is unchanged, so $Q'=Q=U_T(Q)$, and we are done. Otherwise, let $\pi$ be the process taking the step. 
+     
+    Note that for all processes $\pi'$ such that $\pi'\neq\pi$, the conditions $Q$ places on $\pi'$'s entries depend only on $\pi'$'s own variables and, when $\mathrm{pc}[\pi']=\texttt{S3}$, on $\partition$. A step by $\pi$ does not change $\pi'$'s variables, and only \texttt{U1} changes the shared $\partition$ variable.
+
+    So for every step other than \texttt{U1}, $\pi'$ has to satisfy the same conditions before and after $T$, and we can copy $\pi'$'s entries from $c$ into $d$. We handle the processes at \texttt{S3} separately in the \texttt{U1} case.
+
+    \begin{itemize}
+        \item \textbf{Invocation:}
+        Here $U_T(Q)=\mathrm{Evolve}(\mathrm{Invoke}(Q,\pi,op,a))$, where $op$ and $a$ are the operation and argument of the invocation. Before the invocation, $\pi$ is idle. Afterward, $\pi$ is at the first line of $op$, so $c.\mathrm{res}[\pi]=\bot$. Let $d$ be obtained from $c$ by setting $d.\mathrm{op}[\pi]=d.\mathrm{arg}[\pi]=\bot$. These are the entries $Q$ requires for an idle process, and the invocation does not change $\partition$, so $d\in Q$. Applying $\mathrm{Invoke}$ to $d$ gives $c$, and the empty sequence of $\Delta$ steps keeps $c$ in $U_T(Q)$.
+
+        \item \textbf{Intermediate step:}
+        Here $U_T(Q)=\mathrm{Evolve}(Q)$, so we need a sequence of $\Delta$ steps from $d$ to $c$. We check each case: 
+
+        \begin{enumerate}
+            \item \textbf{\texttt{U1}:}
+            We obtain $d$ from $c$ by restoring the partition before the step and setting $d.\mathrm{res}[\pi]=\bot$, which is the result required at \texttt{U1}. 
+            
+            Since this step changes $\partition$, we also need to check the other processes at \texttt{S3}: 
+            \begin{itemize}
+                \item If $c$ records $\bot$, then we are done. 
+                \item If $c$ records \False{} for such a process $\pi'$, then $u[\pi']$ is a representative after the union. Since a union only retires a representative and never creates a new one, $u[\pi']$ was also a representative before the union. Hence these \False{} entries are allowed in $d$, and $d\in Q$. 
+            \end{itemize} 
+            
+            By \texttt{TypeOK} after the step, the new partition is idempotent. Applying $\pi$'s union to $d$ with the same choice of representative gives the partition in $c$ and records \texttt{ACK}, which is $c.\mathrm{res}[\pi]=\mathrm{ret}[\pi]$ at \texttt{UR}. Thus $\Delta(d,\pi,c)$.
+
+            \item \textbf{\texttt{F1}:}
+            We obtain $d$ from $c$ by setting $d.\mathrm{res}[\pi]=\bot$, as required at \texttt{F1}. Then $d\in Q$. Let $a=\mathrm{arg}[\pi]$. The sequential \Find{} on $a$ records $\partition(a)$, which is exactly the value \texttt{F1} stores in $\mathrm{ret}[\pi]$. Thus $\Delta(d,\pi,c)$.
+
+            \item \textbf{\texttt{S1}:}
+            The step only updates $u[\pi]$ and $v[\pi]$, and the result entry for $\pi$ is $\bot$ at both \texttt{S1} and \texttt{S2}. The partition and the call's input are unchanged. Hence $c\in Q$, and we use the empty sequence of $\Delta$ steps.
+            
+            \item \textbf{\texttt{S2}:}
+            We obtain $d$ from $c$ by setting $d.\mathrm{res}[\pi]=\bot$, which is the result required at \texttt{S2}. Since this step does not change $\partition$ or the call's input, $d\in Q$. Write $\mathrm{arg}[\pi]=(a,b)$. By \texttt{Inv} before the step, 
+            \[\partition(u[\pi])=\partition(a) \quad \text{and} \quad \partition(v[\pi])=\partition(b)\]
+             so the value \texttt{S2} writes to $v[\pi]$ is $\partition(b)$.
+
+            Since $\pi$ moves to either \texttt{SR} or \texttt{S3}, we need to check the three results $Q'$ allows for $\pi$:
+            \begin{itemize}
+                \item If $c$ records $\bot$, then $\pi$ is at \texttt{S3} and $c=d$, so we use the empty sequence of $\Delta$ steps.
+                \item If $c$ records \True{}, then $\pi$ moved to \texttt{SR}, since $Q'$ does not allow \True{} at \texttt{S3}. So the test at \texttt{S2} succeeded, and $u[\pi]=\partition(b)$. By idempotence, $\partition(a)=\partition(u[\pi])=\partition(\partition(b))=\partition(b)$, so the sequential \SameSet{} on $(a,b)$ returns \True{}.
+                \item If $c$ records \False{}, then $\pi$ moved to \texttt{S3}, since at \texttt{SR} the result must be \True{}. So the test at \texttt{S2} failed, and $u[\pi]\neq\partition(b)$. Since $Q'$ allows \False{} at \texttt{S3} only if $u[\pi]$ is a representative, $\partition(a)=\partition(u[\pi])=u[\pi]\neq\partition(b)$, so the sequential \SameSet{} on $(a,b)$ returns \False{}.
+            \end{itemize}
+
+            In the last two cases, $\partition$ is unchanged and only $\pi$'s result is updated, so $\Delta(d,\pi,c)$.
+          
+
+            \item \textbf{\texttt{S3}:}
+            If $\pi$ retries at \texttt{S1}, then $c.\mathrm{res}[\pi]=\bot$, which is allowed before the step at \texttt{S3}. If $\pi$ moves to \texttt{SR}, then $c.\mathrm{res}[\pi]=\False{}$. This branch is only taken when $\partition(u[\pi])=u[\pi]$, so \False{} is also allowed before the step at \texttt{S3}. Thus $c\in Q$ in either case, and we use the empty sequence of $\Delta$ steps.
+        \end{enumerate}
+
+        \item \textbf{Return:}
+        Here $U_T(Q)=\mathrm{Filter}(\mathrm{Evolve}(Q),\pi,r)$, where $r$ is the value $\pi$ returns. Since $\pi$ is idle after the return, its three entries in $c$ are $\bot$. We obtain $d$ from $c$ by restoring $\pi$'s operation and argument and setting $d.\mathrm{res}[\pi]=r$. Since $\pi$ was at a return line with $\mathrm{ret}[\pi]=r$, these are the entries $Q$ requires before the step. Hence $d\in Q$. The empty sequence of $\Delta$ steps gives $d\in\mathrm{Evolve}(Q)$, and since $d.\mathrm{res}[\pi]=r$, $\mathrm{Filter}$ keeps $d$ and clears $\pi$'s entries, giving $c$.
+    \end{itemize}
+
+    Thus $c\in U_T(Q)$ in every case, so $Q'\subseteq U_T(Q)\subseteq P'$.
+    \end{proof}
+\end{enumerate}
+
+Since $Q$ is nonempty and $Q\subseteq P$ in every reachable state, $P$ is nonempty in every reachable state. So every finite history of the implementation is linearizable, and thus the concurrent UFS algorithm is linearizable.
+
+\newpage 
+
+\section{Conclusion}
+
+Thus, we showed that the concurrent UFS algorithm is linearizable. We used meta-configuration tracking because \SameSet{} is future dependent and hence we cannot fix its linearization point in advance. We augmented the algorithm with an auxiliary variable $P$ that has every configuration consistent with the history so far, and reduced linearizability to showing that $P$ is never empty. To prove this, we defined a set $Q$ of plausible configurations and proved:
+\[Q \neq \emptyset \quad \text{ and } \quad  Q\subseteq P \]
+
+at each reachable step.  
+
+Note that the linearization points are \Unite{} at \texttt{U1}, \Find{} at \texttt{F1}, and \SameSet{} at \texttt{S2}. A \SameSet{} that returns \True{} takes effect at \texttt{S2}. A \SameSet{} that returns \False{} also takes effect at its last \texttt{S2}, but we only know this once \texttt{S3} confirms that $u[\pi]$ is still a representative. This is why $Q$ contains both possibilities at \texttt{S3}: a configuration in which the call is still pending, and one in which it already returned \False{} at \texttt{S2}. Then \texttt{S3} decides which one survives. 
+The fact that makes this work is that a union never creates a new representative, so a \False{} recorded at \texttt{S2} stays valid until $u[\pi]$ stops being a representative. 
+
+Note that this is also why we only need $Q\subseteq P$ and not $Q=P$; $P$ contains configurations in which pending calls take effect early, while $Q$ only keeps the ones that agree with the implementation's state.
+
+
+
+\end{document}
