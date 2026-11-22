@@ -3,6 +3,7 @@
 **/*.synctex.gz 
 **/*.fdb_latexmk 
 **/*.fls
+**/*.tlacache
 .md
 .DS_Store
 resume
