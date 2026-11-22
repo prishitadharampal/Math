@@ -1,0 +1,331 @@
+\documentclass[12pt]{amsproc}
+\usepackage{pgfplots}
+
+\include{../style}
+
+\AtBeginEnvironment{proof}{%
+  \setlength{\parindent}{0pt}%
+  \setlength{\listparindent}{0pt}%
+  \setlength{\normalparindent}{0pt}}
+
+\begin{document}
+
+\title{Machine Verifying MCS Queue Lock For RMR Machines}
+
+\author{Prishita Dharampal}
+\date{}
+\maketitle
+\vspace{-0.3in}
+
+\newcommand{\False}{\texttt{False}}
+\newcommand{\True}{\texttt{True}}
+
+\section{The MCS Queue Lock}
+
+We will prove the correctness of the MCS queue lock for the cache-coherent (CC) and distributed shared-memory (DSM) models. Processes requesting the resource form a queue, and each waiting process repeatedly reads its own Boolean flag. Its predecessor raises this flag when releasing the lock. The algorithm is as follows: 
+
+\begin{lstlisting}[mathescape]
+Processes: $\Pi$
+Nodes: $\mathit{Nodes}=\Pi\cup\{\mathit{Anchor}\}$, where $\mathit{Anchor}\notin\Pi$
+Node values: $\mathit{MemVals}=\Pi\cup\{\texttt{NIL},\texttt{NONNIL}\}$, where $\texttt{NIL},\texttt{NONNIL}\, \notin\Pi$ and $\texttt{NIL}\ne\texttt{NONNIL}$
+
+Shared variables:
+  $\mathrm{tail}\in\mathit{Nodes}$, initially $\mathrm{tail}=\mathit{Anchor}$
+  $\mathrm{mem}\colon\mathit{Nodes}\to\mathit{MemVals}$, initially $\mathrm{mem}[\mathit{Anchor}]=\texttt{NONNIL}$
+  $\mathrm{goVal}\colon\Pi\to\{\texttt{TRUE},\texttt{FALSE}\}$
+
+Local variables for each process $\pi\in\Pi$:
+  $\mathrm{mynode}[\pi]\in\mathit{Nodes}$, initially $\mathrm{mynode}[\pi]=\pi$
+  $\mathrm{mypred}[\pi]\in\mathit{Nodes}$, initialized arbitrarily 
+  $\mathrm{nxtgo}[\pi]\in\mathit{MemVals}$, initialized arbitrarily 
+
+Try($\pi$):
+T1:    mem[mynode[$\pi$]] = NIL
+T2:    goVal[$\pi$] = FALSE
+T3:    mypred[$\pi$] = FAS(tail, mynode[$\pi$])
+T4:    if FAS(mem[mypred[$\pi$]], $\pi$) = NIL then goto T5, else enter the CS
+T5:    await goVal[$\pi$]
+
+Exit($\pi$)
+E1:    nxtgo[$\pi$] = FAS(mem[mynode[$\pi$]], NONNIL)
+E2:    if nxtgo[$\pi$] $\ne$ NIL
+          then goVal[nxtgo[$\pi$]] = TRUE
+E3:    mynode[$\pi$] = mypred[$\pi$]
+\end{lstlisting}
+
+We will prove mutual exclusion, first-come-first-served ordering, starvation freedom, and constant RMR complexity for this algorithm. 
+
+\newpage 
+
+\section{Proof}
+
+
+\subsection{Mutual Exclusion}
+
+\bbni 
+
+We will prove mutual exclusion by showing that every process in the critical section is the head of the queue and that there is at most one head. We define an invariant $\mathsf{Inv}$ describing node ownership, the queue, and the handoff between processes. We will prove that $\mathsf{Inv}$ holds after every step and that it implies these two properties. Note that, since processes reuse nodes, we also need to track ownership. A process owns its $\mathrm{mynode}$ until it executes $E_1$. At $E_1$, it gives up this node and takes ownership of its predecessor's node, which it adopts at $E_3$. A process is queued when its program counter is \texttt{T4}, \texttt{T5}, or \texttt{E1}. We call a queued process the head if its predecessor node is not owned by any process.
+
+We prove by induction on the number of steps that processes own distinct nodes, that the predecessor pointers follow the queue order, and that only the head can enter the critical section. Initially, every process owns its original node, the queue is empty, and $\mathit{Anchor}$ is unowned. Assume these properties hold before a step taken by $\pi$. We check each step:
+
+\begin{itemize}
+    \item \textbf{Initialization and enqueueing.}
+    
+    At $T_1$, $\pi$ resets its own node to \texttt{NIL}, and at $T_2$, it lowers its own flag. 
+    By the inductive hypothesis, no queued process still needs $\pi$'s owned node as its predecessor node, so resetting it does not disrupt another process's entry.
+
+    At $T_3$, the FAS places $\pi$'s node in $\mathrm{tail}$ and returns the old tail as its predecessor node. Since FAS is atomic, concurrent executions of $T_3$ are ordered, and each process joins at the tail of the queue. 
+
+    \item \textbf{Entry through $T_4$.}
+    
+    Suppose $\pi$ has a queued predecessor $\pi'$. While $\pi$ is at $T_4$ and $\pi'$ is still queued, $\pi'$'s node contains \texttt{NIL}. Thus, $\pi$'s FAS at $T_4$ returns \texttt{NIL}, and $\pi$ moves to $T_5$. If $\pi$ instead reads a non-\texttt{NIL} value, its predecessor node is owned by no process (either its previous owner has released it, or it is the anchor before any process has adopted it). The processes ahead of $\pi$ have released in queue order, so $\pi$ is the head.
+
+    \item \textbf{Entry through $T_5$.}
+    
+    The flag was lowered at $T_2$. Its corresponding wake-up
+    occurs when the predecessor executes $E_2$, after releasing
+    at $E_1$. Hence, when $\pi$ proceeds through $T_5$, its
+    predecessor has released and $\pi$ is the head.
+
+    A wake-up intended for an earlier execution of $\pi$'s entry protocol has already occurred before $\pi$ starts again. If $\pi$ previously waited at $T_5$, it needed that wake-up to enter the CS. If it directly entered the CS at $T_4$, its predecessor had released before the flag address was published, so that release created no wake-up for it.
+
+    \item \textbf{Release and node adoption.}
+    
+    A process executing $E_1$ is the head. It leaves the queue and marks its node \texttt{NONNIL}. Its successor, if one exists, becomes the head.
+
+    If the successor has already published its flag address, $E_1$ records that address and $E_2$ raises the flag. Otherwise, the successor's later $T_4$ observes the release.
+
+    The releasing process takes its predecessor's node, whose previous owner has released and whose handoff to this process has completed. Its old node is available for its successor's handoff. Thus ownership stays distinct, and $E_3$ completes the adoption.
+\end{itemize}
+
+These steps preserve the ownership and queue relationships, and every entry into the CS is by the head. Since the queue has at most one head, at most one process can be in the CS.
+
+\subsection{First-Come-First-Served}
+
+\bbni
+
+The doorway consists of steps $T_1$ through $T_3$. We will show that if $\pi$ completes its doorway before another process $\pi'$ starts the entry protocol, then $\pi'$ does not enter the CS before $\pi$. 
+
+To record which processes $\pi'$ must wait for, we augment the original specification $\mathsf{Spec}$ to obtain $\mathsf{ASpec}$. For the FCFS and starvation-freedom proofs, the relevant auxiliary variables are $\mathrm{ticket}$, $\mathrm{nxtTicket}$, $\mathrm{serving}$, and $\mathrm{ahead}$. Initially,
+\[
+    \mathrm{ticket}[\pi]=0,\qquad
+    \mathrm{ahead}[\pi]=\emptyset
+    \quad\text{for every }\pi\in\Pi,
+\]
+and
+\[
+    \mathrm{nxtTicket}=\mathrm{serving}=0.
+\]
+When $\pi$ joins the queue at $T_3$, it receives the current $\mathrm{nxtTicket}$, and $\mathrm{nxtTicket}$ increases by one. When a process releases at $E_1$, $\mathrm{serving}$ increases by one.
+
+The ticket part of the invariant $\mathsf{LiveInv}$ states that queued processes hold distinct, consecutive tickets from $\mathrm{serving}$ to $\mathrm{nxtTicket}-1$, in queue order. In particular, the head holds ticket $\mathrm{serving}$. This follows by induction. Initially, the queue is empty. At $T_3$, the new process joins at the tail with the next ticket. At $E_1$, the head leaves the queue and $\mathrm{serving}$ increases by one.
+
+The set $\mathrm{ahead}[\pi']$ records the processes that had completed their doorway when $\pi'$ started and have yet to enter the CS. When $\pi'$ starts the entry protocol, moving from $\texttt{RM}$ to $\texttt{T1}$, we set
+\[
+    \mathrm{ahead}[\pi']
+    =
+    \{\pi\in\Pi:
+        \mathrm{pc}[\pi]\in\{\texttt{T4},\texttt{T5}\}\}.
+\]
+Whenever a process enters the CS, we remove it from every $\mathrm{ahead}$ set. 
+
+We prove an invariant $\mathsf{FCFSInv}$ stating that, for every $\pi\in\mathrm{ahead}[\pi']$,
+\begin{enumerate}
+    \item $\mathrm{pc}[\pi]\in\{\texttt{T4},\texttt{T5}\}$.
+    \item If $\pi'$ is queued, then
+    $\mathrm{ticket}[\pi]<\mathrm{ticket}[\pi']$.
+\end{enumerate}
+
+Initially, every $\mathrm{ahead}$ set is empty. When $\pi'$ starts, the first condition holds by construction, and the second holds vacuously because $\pi'$ has yet to join the queue. When $\pi'$ executes $T_3$, it receives $\mathrm{nxtTicket}$. Every process still in $\mathrm{ahead}[\pi']$ is queued and has a smaller ticket, establishing the second condition.  A process in an $\mathrm{ahead}$ set keeps its ticket while waiting. When it enters the CS, it is removed from every such set. The remaining steps preserve both conditions. Thus $\mathsf{FCFSInv}$ holds after every step.
+
+Now suppose $\pi'$ is in the CS and $\pi\in\mathrm{ahead}[\pi']$. Since $\pi$ is still waiting, the ticket-range condition gives $\mathrm{serving}\le\mathrm{ticket}[\pi]$. By $\mathsf{FCFSInv}$, $\mathrm{ticket}[\pi]<\mathrm{ticket}[\pi']$. Since $\pi'$ is in the CS, it is the head and holds ticket $\mathrm{serving}$. Hence
+\[
+    \mathrm{serving}
+    \le \mathrm{ticket}[\pi]
+    < \mathrm{ticket}[\pi']
+    = \mathrm{serving},
+\]
+a contradiction. Therefore,
+\[
+    \mathrm{pc}[\pi']=\texttt{E1}
+    \implies \mathrm{ahead}[\pi']=\emptyset.
+\]
+
+If $\pi$ completed its doorway before $\pi'$ started, then either $\pi$ had already entered, or it was recorded in $\mathrm{ahead}[\pi']$. In the latter case, it must enter before $\pi'$ can enter. Thus FCFS follows.
+
+
+\subsection{Starvation Freedom}
+
+\bbni
+
+We will show that every process starting the entry protocol eventually enters the CS. We assume weak fairness. A process at $T_1$ through $T_4$ or $E_1$ through $E_3$ eventually executes that step, and a process waiting at $T_5$ eventually proceeds once its flag has been raised. Let $\mathsf{AFairSpec}$ denote the augmented specification $\mathsf{ASpec}$ under this fairness assumption. In the mechanized proof this assumption is stated once, for all processes at every point in time, as $\mathsf{AFairness} = \Box(\forall \pi : \mathsf{FairProc}(\pi))$. (This is equivalent to weak fairness of each step, but TLAPS could not prove that equivalence.)
+
+First, a queued process holding ticket $\mathrm{serving}$ is the head. Otherwise, it would have a queued predecessor whose ticket is one smaller, contradicting the fact that every queued ticket is at least $\mathrm{serving}$.
+
+We first show that a waiting process $\pi$ with
+$\mathrm{ticket}[\pi]=\mathrm{serving}$ eventually enters.
+
+\begin{itemize}
+    \item If $\pi$ is at $T_4$, its predecessor node is owned by no process, since $\pi$ is the head. The node contains a non-\texttt{NIL} value, and ownership prevents another process from resetting it while $\pi$ still needs it. Fairness makes $\pi$ execute $T_4$ and enter directly.
+
+    \item If $\pi$ is at $T_5$ with its flag raised, fairness gives eventual entry.
+
+    \item If $\pi$ is at $T_5$ with its flag lowered, it published its flag address before its predecessor released. The predecessor therefore retrieved that address at $E_1$. Since the flag is still lowered, the corresponding $E_2$ has yet to execute. Fairness makes the predecessor execute $E_2$, raising the flag, and $\pi$ eventually enters.
+\end{itemize}
+
+\textbf{The head eventually releases.}
+
+We have shown that the head eventually enters the CS. We also need it to release the lock so that the next process can proceed. Suppose $\mathrm{serving}=k$, and let $\pi'$ be the head holding ticket $k$. If $\pi'$ is waiting, the argument above gives eventual entry. Once it is in the CS, fairness makes it execute $E_1$, releasing the lock and increasing $\mathrm{serving}$. Thus, whenever the queue is nonempty, the current value of $\mathrm{serving}$ eventually increases.
+
+\textbf{Every waiting process eventually enters.}
+
+Since fairness ensures that every process starting at $T_1$ eventually executes $T_1,T_2,T_3$ and reaches $T_4$, we only need to show that an arbitrary process $\pi$ waiting at $T_4$ or $T_5$ eventually enters the CS. We will use the head's progress to show that the processes ahead of $\pi$ eventually leave the queue.
+
+We prove by induction on $n\in\mathbb{N}$ that any waiting process satisfying
+\[
+    \mathrm{ticket}[\pi]\le\mathrm{serving}+n
+\]
+eventually enters the CS. Here $n$ bounds the number of processes ahead of $\pi$ in the queue.
+
+\textbf{Base case.}
+Suppose $n=0$. Since every queued ticket is at least
+$\mathrm{serving}$, we have
+\[
+    \mathrm{ticket}[\pi]=\mathrm{serving}.
+\]
+Thus $\pi$ is the head, and the head-progress argument gives eventual entry.
+
+\textbf{Inductive step.}
+Assume the claim holds for $n$. Suppose $\pi$ is waiting with
+\[
+    \mathrm{ticket}[\pi]\le\mathrm{serving}+n+1.
+\]
+If $\mathrm{ticket}[\pi]\le\mathrm{serving}+n$, the inductive hypothesis already applies.
+
+Otherwise, let $k$ be the current value of $\mathrm{serving}$. Since tickets are natural numbers,
+\[
+    \mathrm{ticket}[\pi]=k+n+1.
+\]
+
+Since $\pi$ is queued with a ticket greater than $k$, and the queued tickets fill the range from $\mathrm{serving}$ to $\mathrm{nxtTicket}-1$, some queued process $\pi'$ holds ticket $k$. By the observation above, $\pi'$ is the head, and by the argument above, $\pi'$ eventually releases, making $\mathrm{serving}\ge k+1$.
+
+If $\pi$ has entered by then, we are done. Otherwise, it is still waiting with the same ticket, so
+\[
+    \mathrm{ticket}[\pi]
+    =k+n+1
+    \le\mathrm{serving}+n.
+\]
+Thus at most $n$ processes remain ahead of $\pi$, and the inductive hypothesis gives eventual entry.
+
+Since every waiting process has a finite ticket and therefore satisfies the bound for some $n$, every process waiting at $T_4$ or $T_5$ eventually enters, and Starvation Freedom holds. 
+
+\subsection{RMR Bounds}
+
+\bbni
+
+We will show that each execution of the entry and exit protocols costs at most eight remote memory references in the CC model and five in the DSM model. These bounds are independent of the number of processes and the number of times a process reads its flag while waiting.
+
+The augmented specification $\mathsf{ASpec}$ also contains counters $\mathrm{rmrCC}[\pi]$ and $\mathrm{rmrDSM}[\pi]$ for each process $\pi\in\Pi$. Both counters are initially zero and are reset to zero whenever $\pi$ starts the entry protocol. The Boolean $\mathrm{goCached}[\pi]$ records whether $\pi$ has a cached copy of its flag. It is initially \False.
+
+In the DSM model, $\mathrm{goVal}[\pi]$ is stored in $\pi$'s own memory module. Thus lowering its flag at $T_2$ and reading it at $T_5$ incur no RMRs. We incur at most one RMR for each of $T_1,T_3,T_4,E_1$, and the write at $E_2$. Step $E_3$ only changes a local variable. Hence these steps cost at most five RMRs.
+
+In the CC model, we incur one RMR for each shared write or FAS. The steps $T_1,T_2,T_3,T_4,E_1$, and $E_2$ therefore cost at most six RMRs. At $T_5$, a read costs one RMR if the flag is not cached, after which $\mathrm{goCached}[\pi]$ becomes \True. Further reads of the cached flag cost no RMRs.
+
+At $T_2$, we set $\mathrm{goCached}[\pi]=\False$. When another process raises $\pi$'s flag at $E_2$, we also set $\mathrm{goCached}[\pi]=\False$, representing the invalidation of the cached copy. That same step sets $\mathrm{goVal}[\pi]=\True$, so the next read succeeds. Thus the waiting loop costs at most two RMRs: one before the flag is raised and one afterwards.
+
+To prove that these bounds hold after every step, we define upper bounds on the counters at each program-counter value:
+\begingroup
+\renewcommand{\arraystretch}{1.5}
+\[
+\begin{array}{|c|c|c|c|c|c|c|c|c|}
+\hline
+\mathrm{pc}[\pi]
+    & \texttt{T1} & \texttt{T2} & \texttt{T3} & \texttt{T4}
+    & \texttt{T5} & \texttt{E1} & \texttt{E2}
+    & \texttt{E3},\texttt{RM} \\ \hline
+\mathrm{CCCap}
+    & 0 & 1 & 2 & 3 & 5 & 6 & 7 & 8 \\ \hline
+\mathrm{DSMCap}
+    & 0 & 1 & 1 & 2 & 3 & 3 & 4 & 5 \\ \hline
+\end{array}
+\]
+\endgroup
+
+Here, the program counter indicates the next step to execute, so each bound includes the cost of the preceding steps.
+
+We prove an invariant $\mathsf{RMRInv}$ stating that, for every
+$\pi\in\Pi$,
+\begin{align*}
+\mathrm{rmrCC}[\pi]
+    &\le \mathrm{CCCap}(\mathrm{pc}[\pi]), \\
+\mathrm{rmrDSM}[\pi]
+    &\le \mathrm{DSMCap}(\mathrm{pc}[\pi]),
+\end{align*}
+and
+\[
+\mathrm{pc}[\pi]=\texttt{T5}
+\implies
+\bigl(
+    \mathrm{rmrCC}[\pi]\le 4
+    \;\lor\; \mathrm{goCached}[\pi]
+    \;\lor\; \mathrm{goVal}[\pi]
+\bigr).
+\]
+The last condition records why repeated failed reads cannot increase the counter indefinitely. At $T_5$, either the counter is still at most four, the flag is cached, or the flag has been raised and the next read will let $\pi$ proceed.
+
+\begin{proof}
+We prove $\mathsf{RMRInv}$ by induction on the number of steps.
+
+\textbf{Base case.}
+Initially, every process is at \texttt{RM} and both counters are zero. Thus the counter bounds hold, and the condition for $T_5$ holds vacuously.
+
+\textbf{Inductive step.}
+Assume $\mathsf{RMRInv}$ holds before the step, and let $\pi$ be the process taking it. We check each case.
+
+\begin{itemize}
+    \item \textbf{Starting the doorway: }
+
+    Both counters are reset to zero, and $\pi$ moves to $T_1$, whose bounds are zero.
+
+    \item \textbf{$T_1$ through $T_4$:}
+
+    Each step increases the counters by the costs described above. The bounds at the new program-counter value allow these increases. In particular, if $T_4$ sends $\pi$ to
+    $T_5$, then
+    \[
+        \mathrm{rmrCC}[\pi]\le 4,
+        \qquad
+        \mathrm{rmrDSM}[\pi]\le 3.
+    \]
+    Thus the additional condition at $T_5$ also holds.
+
+    \item \textbf{A failed read at $T_5$:}
+
+    This step exists only in $\mathsf{ASpec}$ and changes only the auxiliary variables, so it is a stuttering step of $\mathsf{Spec}$. If the flag is \False, and $\pi$ remains at $T_5$. If the flag is cached, neither counter increases. Otherwise, the additional condition in the inductive hypothesis gives $\mathrm{rmrCC}[\pi]\le 4$. The read increases this counter by one and sets $\mathrm{goCached}[\pi]=\True$. Hence the counter remains at most five, and the additional condition is preserved. 
+    
+    The DSM counter is unchanged.
+
+    \item \textbf{A successful read at $T_5$: }
+
+    The flag is \True, so $\pi$ enters the CS and its program counter becomes \texttt{E1}. The CC counter increases by at most one, from at most five to at most six. The DSM counter remains at most three. Thus satisfying the bounds at \texttt{E1}.
+
+    \item \textbf{$E_1$ through $E_3$.}
+
+    Step $E_1$ increases each counter by one. Step $E_2$ increases each counter by at most one, depending on whether a successor must be woken. Step $E_3$ changes neither counter. The bounds in the table are therefore preserved.
+\end{itemize}
+
+A step by $\pi$ leaves the counters of every process $\pi'\ne\pi$ unchanged. The only way it can affect another process's cache condition is by raising that process's flag at $E_2$. This clears $\mathrm{goCached}[\pi']$ but also sets $\mathrm{goVal}[\pi']=\True$, preserving the additional condition at $T_5$. A stuttering step changes nothing. Thus every step preserves $\mathsf{RMRInv}$.
+\end{proof}
+
+Since every CC bound in the table is at most eight and every
+DSM bound is at most five, we obtain
+\[
+\forall \pi\in\Pi:\qquad
+\mathrm{rmrCC}[\pi]\le 8
+\quad\text{and}\quad
+\mathrm{rmrDSM}[\pi]\le 5.
+\]
+Therefore the algorithm has constant RMR complexity in both models.
+
+\section{Conclusion}
+Thus, we proved that the MCS queue lock satisfies mutual exclusion, first-come-first-served ordering, starvation freedom, and has constant RMR bounds. 
+\end{document}
